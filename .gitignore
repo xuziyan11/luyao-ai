@@ -52,9 +52,12 @@ ai-companion/data/
 # 含密钥片段的安全审查报告
 security-audit*.md
 
-# Spring 配置可能含明文兜底密钥，先排除；如需提交请改为纯环境变量 + application.yml.template
+# Spring 配置：真实 application.yml 含环境变量注入的密钥，必须排除；
+# 仅提交安全的 application.yml.template（纯 ${ENV_VAR} 占位，无明文）供克隆后复制使用。
 application.yml
 application-*.yml
+# 例外：安全的模板文件要进仓库
+!application.yml.template
 
 # 其他 IDE / AI 助手目录
 .idea/

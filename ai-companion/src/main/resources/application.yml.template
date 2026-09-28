@@ -1,0 +1,125 @@
+# =============================================================================
+# 路瑶 AI · 应用配置模板（application.yml.template）
+# -----------------------------------------------------------------------------
+# 本文件可安全提交到 GitHub / 任意公开仓库，不含任何明文密钥。
+# 克隆项目后，复制为 application.yml 并通过环境变量注入真实凭证即可运行：
+#
+#   cp ai-companion/src/main/resources/application.yml.template \
+#      ai-companion/src/main/resources/application.yml
+#
+# 真实密钥一律通过环境变量注入（见下方 ${ENV_VAR}），请勿把明文写回 application.yml。
+# 线上部署建议放到 .env 文件或 systemd EnvironmentFile 中，例如：
+#   MYSQL_PASSWORD=***  COMPANION_PASSWORD=***  ADMIN_PASSWORD=*** \
+#   DEEPSEEK_API_KEY=***  VOLCANO_TTS_APIKEY=***  COMPANION_DEV_MODE=false
+# =============================================================================
+
+server:
+  port: 8083
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: ai-companion
+
+  # MySQL 数据库：请在本机或服务端提前创建数据库 ai_companion
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_companion?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # 启动时自动执行建表脚本
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - classpath:/schema.sql
+
+# 路瑶 AI 业务配置
+companion:
+  auth:
+    password: ${COMPANION_PASSWORD}
+    # 开发模式：验证码随接口返回 + 允许模拟微信登录。上线时设为 false 并接入真实短信渠道。
+    dev-mode: ${COMPANION_DEV_MODE:true}
+  # 管理后台：独立端口运行的单独站点（与主站共享数据库，可在线修改主站动态配置）
+  admin:
+    port: ${ADMIN_PORT:8084}
+    password: ${ADMIN_PASSWORD}
+  # 微信扫码登录（微信开放平台-网站应用）。三项配置完整后自动启用真实扫码登录。
+  # 申请: https://open.weixin.qq.com （需企业主体认证 + 已备案域名作为授权回调域）
+  wechat:
+    appid: ${WECHAT_APPID:}
+    secret: ${WECHAT_SECRET:}
+    redirect-uri: ${WECHAT_REDIRECT_URI:http://localhost:8083/api/auth/wechat/callback}
+  # DeepSeek API：请通过环境变量 DEEPSEEK_API_KEY 配置，不要把真实 key 提交到仓库。
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY}
+    base-url: "https://api.deepseek.com/v1/chat/completions"
+    model: "deepseek-chat"
+    temperature: 0.85
+    max-tokens: 80
+    timeout-seconds: 120
+  # 记忆系统参数
+  memory:
+    short-term-rounds: 6       # 短期记忆保留最近 N 轮对话（6轮=12条，省token）
+    long-term-extract-interval: 15  # 每 N 轮触发一次长期记忆提取（降低调用频率）
+  # 好感度参数
+  affinity:
+    initial: 0                 # 好感度从 0 开始，重新来过
+    min: 0
+    max: 100
+  # 微信 ClawBot (iLink) 接入配置
+  # 启用前先扫码绑定：访问 http://localhost:8083/ilink/bind?pwd=xxx 拿二维码
+  # 协议文档: https://ilinkai.weixin.qq.com
+  ilink:
+    enabled: ${ILINK_ENABLED:true}       # 启用 iLink 轮询任务，绑定后会自动拉取微信消息
+    default-baseurl: "https://ilinkai.weixin.qq.com"
+    poll-timeout-seconds: 35              # 长轮询单次最长等待
+    typing-base-ms: 0                      # 秒回模式：基础延迟为 0
+    typing-per-char-ms: 0                  # 秒回模式：每字延迟为 0
+
+# Azure TTS 配置（可选，未配置时使用浏览器内置语音）
+
+  # 火山引擎 TTS 配置（豆包语音合成 + 声音复刻）
+  # 获取方式: https://console.volcengine.com/speech/app
+  # V1: appid(纯数字) + access-token → 小模型音色(BV001_streaming等)
+  # V3: api-key → 豆包大模型2.0音色(_bigtts结尾，如zh_female_xiaohe_uranus_bigtts)
+  # V3 API Key 获取: 控制台→语音技术→应用→鉴权信息→API Key
+  volcano:
+    appid: "${VOLCANO_TTS_APPID:}"
+    access-token: "${VOLCANO_TTS_TOKEN:}"
+    api-key: "${VOLCANO_TTS_APIKEY}"
+    cluster: "${VOLCANO_TTS_CLUSTER:volcano_tts}"
+    voice: "${VOLCANO_TTS_VOICE:zh_female_xiaohe_uranus_bigtts}"
+    # 流式语音识别 (ASR)，与 TTS 共享 api-key，需在火山控制台开通 ASR 服务
+    asr:
+      # endpoint=bigmodel 是大模型流式 ASR（2.0版），必须搭配 seedasr 资源ID
+      # 豆包流式语音识别模型2.0 小时版：volc.seedasr.sauc.duration ✓
+      # 豆包流式语音识别模型1.0 小时版：volc.bigasr.sauc.duration ✗（与 bigmodel endpoint 不兼容）
+      resource-id: "${VOLCANO_ASR_RESOURCE_ID:volc.seedasr.sauc.duration}"
+      # 优化版 bigmodel，首字延迟更低
+      endpoint: "${VOLCANO_ASR_ENDPOINT:wss://openspeech.bytedance.com/api/v3/sauc/bigmodel}"
+
+# 豆包 Realtime 端到端实时语音大模型（Duplex 3.0 / Seeduplex）
+# 全双工 S2S：一个 WebSocket 搞定 ASR + LLM + TTS，延迟最低
+# 获取 API Key: 控制台→豆包语音→API Key 管理
+doubao:
+  realtime:
+    api-key: "${VOLCANO_TTS_APIKEY}"
+    url: "wss://openspeech.bytedance.com/api/v3/duplex/realtime/dialogue"
+    model: "1.2.6.1"
+    # 音色：沿用豆包大模型2.0音色（_bigtts 结尾）
+    voice: "zh_female_xiaohe_uranus_bigtts"
+    # 刚接电话时路瑶的问候语
+    greeting: "干嘛呀"
+
+logging:
+  level:
+    com.companion: INFO
+    org.springframework.web.socket: INFO
