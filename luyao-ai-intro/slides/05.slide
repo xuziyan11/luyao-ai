@@ -1,0 +1,30 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>它解决什么问题</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:36 }}>
+    <Box style={{ width:'58%', flexDirection:'column', gap:18 }}>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'flex-start', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:20 }}>
+        <FAIcon name='comment' style={{ fill:'#FF6F5E', width:38, height:38 }} />
+        <Box><Text style={{ fontSize:22, fontWeight:'bold', color:'#EDEFF5' }}>孤独时刻想说话</Text><Text style={{ fontSize:17, color:'rgba(237,239,245,0.7)', marginTop:8, lineHeight:1.6 }}>深夜、通勤、低落时，打开就有温度地陪聊，而非冷冰冰的搜索框。</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'flex-start', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:20 }}>
+        <FAIcon name='brain' style={{ fill:'#FF6F5E', width:38, height:38 }} />
+        <Box><Text style={{ fontSize:22, fontWeight:'bold', color:'#EDEFF5' }}>AI 总「记不住我」</Text><Text style={{ fontSize:17, color:'rgba(237,239,245,0.7)', marginTop:8, lineHeight:1.6 }}>长期记忆让路瑶记住你的偏好与往事，关系随时间越聊越熟。</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'flex-start', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:20 }}>
+        <FAIcon name='mobile' style={{ fill:'#FF6F5E', width:38, height:38 }} />
+        <Box><Text style={{ fontSize:22, fontWeight:'bold', color:'#EDEFF5' }}>多端割裂的陪伴</Text><Text style={{ fontSize:17, color:'rgba(237,239,245,0.7)', marginTop:8, lineHeight:1.6 }}>网页与微信共享同一份记忆，换设备不断档、不重头来过。</Text></Box>
+      </Box>
+    </Box>
+    <Box style={{ width:'42%', background:'linear-gradient(135deg,rgba(255,111,94,0.12) 0%,rgba(255,174,107,0.12) 100%)', borderRadius:16, padding:28, justifyContent:'center' }}>
+      <Text style={{ fontSize:18, color:'rgba(237,239,245,0.6)', letterSpacing:2 }}>CORE VALUE</Text>
+      <Text style={{ fontSize:26, fontWeight:'bold', color:'#EDEFF5', marginTop:14, lineHeight:1.5 }}>把「工具」变成<br />「关系」</Text>
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.72)', marginTop:18, lineHeight:1.7 }}>情绪价值 × 记忆连续性 × 多端可达，是路瑶区别于通用聊天机器人的三点核心。</Text>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>05 / 15</Text>
+  </Box>
+</Slide>

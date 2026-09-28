@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>路瑶 · 语音通话</title>
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --t1: #1A1A1A;
+            --t2: #8E8E93;
+            --t3: #AEAEB2;
+            --user-green: #34C759;
+            --ai-bubble-border: #E8E8ED;
+            --avatar-ring: #6C5CE7;
+            --avatar-ring2: #A29BFE;
+            --btn-gray: #F2F2F7;
+            --btn-gray-active: #E5E5EA;
+            --red: #FF3B30;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--t1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* ---------- 顶部状态栏 ---------- */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(14px + env(safe-area-inset-top)) 20px 12px;
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+        .call-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--t2);
+        }
+        .call-indicator .red-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: blink 1.2s ease-in-out infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+        .timer {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--t1);
+            font-variant-numeric: tabular-nums;
+        }
+        .net-status {
+            font-size: 12px;
+            color: var(--t2);
+        }
+
+        /* ---------- 头像区 ---------- */
+        .avatar-area {
+            text-align: center;
+            padding: 16px 0 8px;
+            flex-shrink: 0;
+        }
+        .avatar-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--avatar-ring), var(--avatar-ring2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 44px; font-weight: 700; color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+        .avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+        /* 呼吸动画 - 外圈光晕 */
+        .avatar-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--avatar-ring), var(--avatar-ring2));
+            opacity: .25;
+            animation: breathe 2.8s ease-in-out infinite;
+            z-index: 1;
+        }
+        /* 呼吸动画 - 第二层扩散 */
+        .avatar-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            border: 2px solid rgba(108,92,231,.18);
+            animation: breathe2 2.8s ease-in-out infinite;
+            z-index: 0;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: .25; }
+            50%      { transform: scale(1.08); opacity: .5; }
+        }
+        @keyframes breathe2 {
+            0%, 100% { transform: scale(1); opacity: .6; }
+            50%      { transform: scale(1.15); opacity: .15; }
+        }
+        /* 呼叫中 - 头像抖动 */
+        .avatar-wrap.calling .avatar {
+            animation: shake .35s ease-in-out infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            25%      { transform: rotate(-3deg); }
+            75%      { transform: rotate(3deg); }
+        }
+        /* 通话中 - 外圈旋转光环 */
+        .avatar-wrap.live .avatar::after {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--avatar-ring);
+            border-right-color: var(--avatar-ring2);
+            animation: spin 1.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .avatar-name {
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 14px;
+            color: var(--t1);
+        }
+        .avatar-sub {
+            font-size: 13px;
+            color: var(--t2);
+            margin-top: 2px;
+        }
+
+        /* ---------- 对话气泡区 ---------- */
+        .bubble-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px 16px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        .bubble-area:empty::before {
+            content: '点击下方按钮开始与路瑶通话';
+            display: block;
+            text-align: center;
+            color: var(--t3);
+            font-size: 13px;
+            margin-top: 40px;
+            font-style: italic;
+        }
+        .bubble {
+            display: flex;
+            margin: 10px 0;
+            align-items: flex-end;
+            animation: bubbleIn .22s ease-out;
+        }
+        @keyframes bubbleIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .bubble.user   { justify-content: flex-end; }
+        .bubble.ai     { justify-content: flex-start; }
+        .bubble.partial { justify-content: flex-end; opacity: .55; }
+
+        .bubble .bubble-body {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.45;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+        .bubble.user .bubble-body {
+            background: var(--user-green);
+            color: #fff;
+            border-bottom-right-radius: 6px;
+        }
+        .bubble.ai .bubble-body {
+            background: #fff;
+            color: var(--t1);
+            border: 1px solid var(--ai-bubble-border);
+            border-bottom-left-radius: 6px;
+        }
+        .bubble.partial .bubble-body {
+            background: var(--user-green);
+            color: rgba(255,255,255,.7);
+            border-bottom-right-radius: 6px;
+            font-style: italic;
+        }
+
+        /* ---------- 底部控制栏 ---------- */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 36px;
+            padding: 16px 20px calc(20px + env(safe-area-inset-bottom));
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+        .ctrl-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+        .ctrl-btn:disabled { cursor: not-allowed; }
+        .ctrl-btn .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--btn-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .18s;
+        }
+        .ctrl-btn:active:not(:disabled) .icon-circle {
+            transform: scale(.92);
+            background: var(--btn-gray-active);
+        }
+        .ctrl-btn.hangup .icon-circle {
+            background: var(--red);
+            transform: rotate(135deg);
+        }
+        .ctrl-btn.hangup:active:not(:disabled) .icon-circle {
+            transform: rotate(135deg) scale(.92);
+            background: #E6352B;
+        }
+        .ctrl-btn.green-call .icon-circle {
+            background: var(--user-green);
+            transform: rotate(0deg);
+        }
+        .ctrl-btn.green-call:active:not(:disabled) .icon-circle {
+            transform: scale(.92);
+            background: #2AA74B;
+        }
+        .ctrl-btn.muted .icon-circle { background: var(--red); }
+        .ctrl-btn.active .icon-circle { background: var(--avatar-ring); }
+
+        .ctrl-btn svg {
+            width: 26px;
+            height: 26px;
+            stroke: var(--t1);
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .ctrl-btn.hangup svg,
+        .ctrl-btn.green-call svg,
+        .ctrl-btn.muted svg,
+        .ctrl-btn.active svg  { stroke: #fff; }
+        .ctrl-btn .label {
+            font-size: 11px;
+            color: var(--t2);
+        }
+        .ctrl-btn:disabled .label { opacity: .4; }
+
+        /* 互斥显示：覆盖 inline style 需 !important */
+        .idle-controls, .active-controls { display: none !important; }
+        .call-idle .idle-controls     { display: flex !important; }
+        .call-calling .active-controls,
+        .call-connected .active-controls { display: flex !important; }
+
+        /* ---------- 错误提示 ---------- */
+        .err-banner {
+            position: fixed;
+            top: calc(60px + env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,59,48,.95);
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            z-index: 99;
+            display: none;
+            max-width: 85%;
+            box-shadow: 0 4px 16px rgba(255,59,48,.3);
+        }
+
+        /* ---------- 空闲态：隐藏呼吸 / 呼叫中：保留 / 通话中：保留 ---------- */
+        .call-idle .avatar-wrap::before,
+        .call-idle .avatar-wrap::after  { display: none; }
+
+        /* ---------- 手机端适配 ---------- */
+        @media (max-width: 380px) {
+            .avatar-wrap { width: 100px; height: 100px; }
+            .avatar { font-size: 38px; }
+            .controls { gap: 28px; }
+            .ctrl-btn .icon-circle { width: 50px; height: 50px; }
+            .ctrl-btn svg { width: 22px; height: 22px; }
+        }
+    </style>
+</head>
+<body class="call-idle" id="body">
+
+<!-- 顶部状态栏 -->
+<div class="top-bar">
+    <div class="call-indicator">
+        <span class="red-dot" id="redDot" style="display:none"></span>
+        <span id="statusText">未通话</span>
+    </div>
+    <div class="timer" id="timer">--:--</div>
+    <div class="net-status" id="netStatus">网络 · 良好</div>
+</div>
+
+<!-- 头像区 -->
+<div class="avatar-area">
+    <div class="avatar-wrap" id="avatarWrap">
+        <div class="avatar" id="avatar">瑶</div>
+    </div>
+    <div class="avatar-name">路瑶</div>
+    <div class="avatar-sub" id="avatarSub">点击下方按钮开始通话</div>
+</div>
+
+<!-- 对话气泡区 -->
+<div class="bubble-area" id="transcript"></div>
+
+<!-- 底部控制栏（统一容器，互斥显示） -->
+<div class="controls">
+
+    <!-- 空闲态：发起通话 -->
+    <div class="idle-controls" style="display:none">
+        <button class="ctrl-btn green-call" onclick="startCall()">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+            </div>
+            <span class="label">发起通话</span>
+        </button>
+    </div>
+
+    <!-- 通话中：静音 / 挂断 / 扬声器 -->
+    <div class="active-controls" style="display:none;gap:36px;align-items:center;">
+        <button class="ctrl-btn mute" id="btnMute" onclick="toggleMute()">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24" id="micIcon">
+                    <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/>
+                    <path d="M19 11a7 7 0 0 1-14 0"/>
+                    <line x1="12" y1="18" x2="12" y2="21"/>
+                </svg>
+            </div>
+            <span class="label">静音</span>
+        </button>
+
+        <button class="ctrl-btn hangup" id="btnHangup" onclick="hangUp()">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+            </div>
+            <span class="label">挂断</span>
+        </button>
+
+        <button class="ctrl-btn speaker" id="btnSpeaker" onclick="toggleSpeaker()">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24" id="spkIcon">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                </svg>
+            </div>
+            <span class="label">扬声器</span>
+        </button>
+    </div>
+
+</div>
+
+<div class="err-banner" id="errBanner"></div>
+
+<script>
+const ACCOUNT_KEY = 'luyao-account';
+let ws = null;
+let mediaStream = null;
+let audioCtx = null;
+let ttsCtx = null;
+let workletNode = null;
+let ttsAudioQueue = [];
+let isPlayingTTS = false;
+let nextPlayTime = 0;
+let callTimer = null;
+let callSeconds = 0;
+let isMuted = false;
+let isSpeakerOn = false;
+let silentMicTimer = null;  // 静音检测定时器
+
+// ---- 计时 ----
+function startTimer() {
+    callSeconds = 0;
+    if (callTimer) clearInterval(callTimer);
+    callTimer = setInterval(() => {
+        callSeconds++;
+        const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const s = String(callSeconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+    }, 1000);
+}
+function stopTimer() {
+    if (callTimer) { clearInterval(callTimer); callTimer = null; }
+    document.getElementById('timer').textContent = '--:--';
+}
+
+// ---- 状态 ----
+function setStatus(text, showRedDot) {
+    document.getElementById('statusText').textContent = text;
+    document.getElementById('redDot').style.display = showRedDot ? '' : 'none';
+}
+function setCallUI(state) {
+    const body = document.getElementById('body');
+    const avatarWrap = document.getElementById('avatarWrap');
+    const avatarSub = document.getElementById('avatarSub');
+
+    body.classList.remove('call-idle', 'call-calling', 'call-connected');
+    body.classList.add('call-' + state);
+    avatarWrap.classList.remove('calling', 'live');
+
+    if (state === 'idle') {
+        avatarSub.textContent = '点击下方按钮开始通话';
+    } else if (state === 'calling') {
+        avatarSub.textContent = '正在接通…';
+        avatarWrap.classList.add('calling');
+    } else if (state === 'connected') {
+        avatarSub.textContent = '通话中';
+        avatarWrap.classList.add('live');
+    }
+}
+
+function showError(msg) {
+    const el = document.getElementById('errBanner');
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+    if (msg) setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// ---- 气泡渲染（AI 增量累积） ----
+let aiBuffer = '';
+let aiBubble = null;
+
+function appendBubble(cls, text) {
+    const area = document.getElementById('transcript');
+
+    if (cls === 'partial') {
+        const last = area.lastElementChild;
+        if (last && last.classList.contains('partial')) {
+            last.querySelector('.bubble-body').textContent = text;
+        } else {
+            // 追加用户正在说话的暂存气泡，不清空已有记录
+            const b = document.createElement('div');
+            b.className = 'bubble partial';
+            b.innerHTML = `<div class="bubble-body">${text}</div>`;
+            area.appendChild(b);
+        }
+        area.scrollTop = area.scrollHeight;
+        return;
+    }
+
+    // 清除 partial
+    const last = area.lastElementChild;
+    if (last && last.classList.contains('partial')) last.remove();
+
+    if (cls === 'ai') {
+        if (!aiBubble || !aiBubble.isConnected) {
+            aiBubble = document.createElement('div');
+            aiBubble.className = 'bubble ai';
+            aiBubble.innerHTML = `<div class="bubble-body"></div>`;
+            area.appendChild(aiBubble);
+            aiBuffer = '';
+        }
+        aiBuffer += text;
+        aiBubble.querySelector('.bubble-body').textContent = aiBuffer;
+        area.scrollTop = area.scrollHeight;
+        return;
+    }
+
+    if (cls === 'ai_done') {
+        aiBuffer = '';
+        aiBubble = null;
+        return;
+    }
+
+    // 用户最终消息
+    const b = document.createElement('div');
+    b.className = 'bubble user';
+    b.innerHTML = `<div class="bubble-body">${text}</div>`;
+    area.appendChild(b);
+    aiBuffer = '';
+    aiBubble = null;
+    area.scrollTop = area.scrollHeight;
+}
+
+// ---- 鉴权 ----
+function getAccount() {
+    try {
+        const a = JSON.parse(sessionStorage.getItem(ACCOUNT_KEY) || 'null');
+        return a && a.sessionId ? a : null;
+    } catch (e) { return null; }
+}
+
+// ---- 头像同步：从主站 localStorage 读取 ai_avatar_url ----
+function syncAvatar() {
+    const url = localStorage.getItem('ai_avatar_url');
+    const avatarEl = document.getElementById('avatar');
+    if (url && avatarEl) {
+        avatarEl.innerHTML = `<img src="${url}" alt="路瑶">`;
+        avatarEl.style.background = 'transparent';
+    } else {
+        // 无头像时恢复默认
+        avatarEl.innerHTML = '瑶';
+        avatarEl.style.background = '';
+    }
+}
+
+// ---- 静音 / 扬声器 ----
+function toggleMute() {
+    isMuted = !isMuted;
+    const btn = document.getElementById('btnMute');
+    btn.classList.toggle('muted', isMuted);
+    btn.querySelector('.label').textContent = isMuted ? '已静音' : '静音';
+    const micIcon = document.getElementById('micIcon');
+    if (isMuted) {
+        micIcon.innerHTML = `<line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V5a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12"/><line x1="12" y1="18" x2="12" y2="21"/>`;
+    } else {
+        micIcon.innerHTML = `<path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><line x1="12" y1="18" x2="12" y2="21"/>`;
+    }
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: isMuted ? 'mute' : 'unmute' }));
+    }
+}
+
+function toggleSpeaker() {
+    isSpeakerOn = !isSpeakerOn;
+    const btn = document.getElementById('btnSpeaker');
+    btn.classList.toggle('active', isSpeakerOn);
+    btn.querySelector('.label').textContent = isSpeakerOn ? '扬声器开' : '扬声器';
+}
+
+// ---- 获取媒体流 ----
+async function getAudioStream() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        return await navigator.mediaDevices.getUserMedia({
+            audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        });
+    }
+    const legacyGum = navigator.getUserMedia || navigator.webkitGetUserMedia
+                   || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    if (legacyGum) {
+        return await new Promise((resolve, reject) => {
+            legacyGum.call(navigator, { audio: true }, resolve, reject);
+        });
+    }
+    const isSecure = location.protocol === 'https:'
+                  || location.hostname === 'localhost'
+                  || location.hostname === '127.0.0.1';
+    if (!isSecure) {
+        throw new Error('当前是 HTTP 环境，浏览器禁止访问麦克风。请用 HTTPS 地址访问。');
+    }
+    throw new Error('当前浏览器不支持麦克风访问');
+}
+
+// Safari 兼容标记
+const IS_SAFARI = /Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Android/.test(navigator.userAgent);
+let callAborted = false;  // Safari 用：避免 onerror + onclose 双触发
+
+// ---- 启动通话 ----
+async function startCall() {
+    showError('');
+    const acc = getAccount();
+    if (!acc) {
+        showError('请先在主站登录后再使用语音通话');
+        setTimeout(() => location.href = '/login.html', 1500);
+        return;
+    }
+    callAborted = false;
+    console.log(`▶ startCall() Safari=${IS_SAFARI} sessionId=${acc.sessionId}`);
+
+    // ⚠️ Safari 要求 AudioContext 必须在用户手势内创建/解锁
+    ensureTtsCtx();
+    console.log('ensureTtsCtx() done, ttsCtx state=' + (ttsCtx?.state ?? 'null'));
+    // 提前创建录音用 AudioContext（Safari 禁止在 WebSocket 异步回调里创建）
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        console.log(`audioCtx pre-created state=${audioCtx.state} sampleRate=${audioCtx.sampleRate}`);
+    } catch (e) {
+        console.error('AudioContext 预创建失败：' + e.message);
+    }
+
+    setStatus('正在接通…', true);
+    setCallUI('calling');
+
+    try {
+        mediaStream = await getAudioStream();
+        console.log(`getUserMedia() OK tracks=${mediaStream.getAudioTracks().length}`);
+    } catch (e) {
+        console.error('getUserMedia 失败：' + e.name + ' - ' + e.message);
+        showError('无法获取麦克风：' + e.message);
+        setCallUI('idle');
+        setStatus('未通话', false);
+        return;
+    }
+
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${proto}//${location.host}/voice-call?user=${encodeURIComponent(acc.sessionId)}`;
+    console.log('WebSocket URL: ' + wsUrl);
+
+    try {
+        ws = new WebSocket(wsUrl);
+    } catch (e) {
+        console.error('WebSocket 创建失败：' + e.message);
+        showError('WebSocket 创建失败：' + e.message);
+        setCallUI('idle');
+        return;
+    }
+    ws.binaryType = 'arraybuffer';
+
+    ws.onopen = () => {
+        console.log('✅ WebSocket onopen 握手成功');
+        ws.send(JSON.stringify({ type: 'start', sessionId: acc.sessionId, voice: '' }));
+        console.log('已发送 start 消息');
+    };
+    ws.onmessage = async (ev) => {
+        if (typeof ev.data === 'string') {
+            console.log('◀ JSON msg: ' + ev.data.slice(0, 120));
+            handleJsonMessage(JSON.parse(ev.data));
+        } else {
+            playTtsChunk(new Uint8Array(ev.data));
+        }
+    };
+    ws.onerror = () => {
+        console.error('⚠ WebSocket onerror fired' + (IS_SAFARI ? ' (Safari)' : ''));
+        if (callAborted) return;  // 已被 close 处理过
+        // Safari 经常在正常关闭前先触发 onerror，给 800ms 等 onclose 先跑
+        if (IS_SAFARI) {
+            setTimeout(() => {
+                if (callAborted) return;
+                console.error('Safari onerror 延迟处理 → 显示异常');
+                showError('通话连接异常');
+                setCallUI('idle');
+                setStatus('连接异常', false);
+            }, 800);
+        } else {
+            showError('通话连接异常');
+            setCallUI('idle');
+            setStatus('连接异常', false);
+        }
+    };
+    ws.onclose = (ev) => {
+        callAborted = true;
+        console.log('WebSocket 关闭 code=' + ev.code + ' reason=' + ev.reason, IS_SAFARI ? '(Safari)' : '');
+        cleanupCall();
+    };
+}
+
+// ---- 处理后端 JSON 消息 ----
+function handleJsonMessage(msg) {
+    console.log('handleJsonMessage type=' + msg.type);
+    switch (msg.type) {
+        case 'ready':
+            console.log('🎉 收到 ready → 切换到 connected 状态');
+            setStatus('通话中', true);
+            setCallUI('connected');
+            startTimer();
+            document.getElementById('netStatus').textContent = '网络 · 良好';
+            startMicCapture();
+            break;
+        case 'asr_partial':
+            appendBubble('partial', msg.text);
+            break;
+        case 'asr_final':
+            appendBubble('user', msg.text);
+            break;
+        case 'ai_text':
+            appendBubble('ai', msg.text);
+            break;
+        case 'ai_done':
+            appendBubble('ai_done', '');
+            break;
+        case 'error':
+            console.error('后端 error: ' + (msg.message || '未知错误'));
+            showError(msg.message || '未知错误');
+            break;
+    }
+}
+
+// ---- 麦克风采集 + 静音检测 ----
+let lastVoiceTime = Date.now();
+let silencePrompted = false;
+
+async function startMicCapture() {
+    try {
+        // AudioContext 已在 startCall() 用户手势里预创建好，这里只确保 resume
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        }
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        const srcNode = audioCtx.createMediaStreamSource(mediaStream);
+
+        const workletCode = `
+            class PcmProcessor extends AudioWorkletProcessor {
+                process(inputs) {
+                    const input = inputs[0];
+                    if (input && input[0]) {
+                        const f32 = input[0];
+                        let sum = 0;
+                        for (let i = 0; i < f32.length; i++) sum += f32[i] * f32[i];
+                        const rms = Math.sqrt(sum / f32.length);
+                        if (rms > 0.015) this.port.postMessage({ type: 'voice' });
+                        const i16 = new Int16Array(f32.length);
+                        for (let i = 0; i < f32.length; i++) {
+                            let s = Math.max(-1, Math.min(1, f32[i]));
+                            i16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                        }
+                        this.port.postMessage(i16.buffer, [i16.buffer]);
+                    }
+                    return true;
+                }
+            }
+            registerProcessor('pcm-processor', PcmProcessor);
+        `;
+        const blob = new Blob([workletCode], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        await audioCtx.audioWorklet.addModule(url);
+
+        workletNode = new AudioWorkletNode(audioCtx, 'pcm-processor', {
+            numberOfInputs: 1, numberOfOutputs: 0, channelCount: 1
+        });
+        workletNode.port.onmessage = (e) => {
+            if (e.data && e.data.type === 'voice') {
+                lastVoiceTime = Date.now();
+                return;
+            }
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(e.data);
+            }
+        };
+        srcNode.connect(workletNode);
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'unmute' }));
+        }
+
+        // 静音检测：用户10秒不说话触发一次随机提醒，整通通话只触发一次
+        lastVoiceTime = Date.now();
+        silencePrompted = false;
+        if (silentMicTimer) clearInterval(silentMicTimer);
+        silentMicTimer = setInterval(() => {
+            if (isPlayingTTS || ttsAudioQueue.length > 0) { lastVoiceTime = Date.now(); return; }
+            if (Date.now() - lastVoiceTime > 10000 && !silencePrompted) {
+                silencePrompted = true;
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'silence_prompt' }));
+                }
+            }
+        }, 500);
+    } catch (e) {
+        showError('麦克风初始化失败：' + e.message);
+    }
+}
+
+// ---- TTS 播放 ----
+const TTS_SAMPLE_RATE = 24000;
+
+function ensureTtsCtx() {
+    if (!ttsCtx) {
+        try {
+            ttsCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: TTS_SAMPLE_RATE });
+        } catch (e) {
+            ttsCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+    if (ttsCtx.state === 'suspended') ttsCtx.resume();
+}
+
+function playTtsChunk(pcmBytes) {
+    ensureTtsCtx();
+    if (!ttsCtx || pcmBytes.byteLength < 2) return;
+    try {
+        let f32;
+        // 自动检测格式：先试 Float32（4字节/采样），值在 [-1, 1] 范围内才算有效
+        if (pcmBytes.byteLength % 4 === 0) {
+            const testF32 = new Float32Array(pcmBytes.buffer, pcmBytes.byteOffset, pcmBytes.byteLength / 4);
+            let valid = true, maxAbs = 0;
+            for (let i = 0; i < Math.min(100, testF32.length); i++) {
+                const v = Math.abs(testF32[i]);
+                if (v > maxAbs) maxAbs = v;
+                if (!isFinite(testF32[i]) || v > 1.5) { valid = false; break; }
+            }
+            if (valid && maxAbs > 0.001) {
+                f32 = testF32;
+                if (!playTtsChunk._fmt) { console.log('[TTS] 格式=Float32, maxAbs=', maxAbs, 'samples=', testF32.length); playTtsChunk._fmt = true; }
+            }
+        }
+        if (!f32) {
+            // s16le 格式：Int16 → Float32 归一化
+            const i16 = new Int16Array(pcmBytes.buffer, pcmBytes.byteOffset, Math.floor(pcmBytes.byteLength / 2));
+            f32 = new Float32Array(i16.length);
+            for (let i = 0; i < i16.length; i++) f32[i] = i16[i] / 32768;
+            if (!playTtsChunk._fmt) { console.log('[TTS] 格式=s16le, samples=', i16.length); playTtsChunk._fmt = true; }
+        }
+        const buf = ttsCtx.createBuffer(1, f32.length, TTS_SAMPLE_RATE);
+        buf.copyToChannel(f32, 0);
+
+        // 无缝播放：每片到达后立即在 nextPlayTime 调度，不等 onended
+        const src = ttsCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ttsCtx.destination);
+        const startAt = Math.max(ttsCtx.currentTime + 0.01, nextPlayTime);
+        src.start(startAt);
+        nextPlayTime = startAt + buf.duration;
+        isPlayingTTS = true;
+        src.onended = () => {
+            if (ttsCtx.currentTime >= nextPlayTime - 0.05) {
+                isPlayingTTS = false;
+                nextPlayTime = 0;
+            }
+        };
+    } catch (e) { console.error('[TTS] PCM 处理失败:', e); }
+}
+
+function scheduleNextPlay() { // 保留函数名，兼容调用
+    // 不再需要，playTtsChunk 直接调度
+}
+
+// ---- 清理通话资源 ----
+function cleanupCall() {
+    if (silentMicTimer) { clearInterval(silentMicTimer); silentMicTimer = null; }
+    if (workletNode) { try { workletNode.disconnect(); } catch(e){} workletNode = null; }
+    if (audioCtx)   { try { audioCtx.close(); }   catch(e){} audioCtx = null; }
+    if (ttsCtx)     { try { ttsCtx.close(); }     catch(e){} ttsCtx = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (ws)         { try { ws.close(); } catch(e){} ws = null; }
+
+    ttsAudioQueue = [];
+    isPlayingTTS = false;
+    nextPlayTime = 0;
+
+    stopTimer();
+    setCallUI('idle');
+    setStatus('已挂断', false);
+    isMuted = false;
+    isSpeakerOn = false;
+    document.getElementById('transcript').innerHTML = '';
+
+    // 重置静音按钮状态
+    const muteBtn = document.getElementById('btnMute');
+    muteBtn.classList.remove('muted');
+    muteBtn.querySelector('.label').textContent = '静音';
+    document.getElementById('micIcon').innerHTML =
+        `<path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/>` +
+        `<path d="M19 11a7 7 0 0 1-14 0"/>` +
+        `<line x1="12" y1="18" x2="12" y2="21"/>`;
+    const spkBtn = document.getElementById('btnSpeaker');
+    spkBtn.classList.remove('active');
+    spkBtn.querySelector('.label').textContent = '扬声器';
+}
+
+function hangUp() { cleanupCall(); }
+
+// ---- 初始化 ----
+window.addEventListener('load', () => {
+    syncAvatar();
+    if (!getAccount()) {
+        showError('请先在主站登录后再使用语音通话');
+    }
+});
+
+// 监听头像变化（主站换头像后实时同步）
+window.addEventListener('storage', (e) => {
+    if (e.key === 'ai_avatar_url') syncAvatar();
+});
+</script>
+</body>
+</html>

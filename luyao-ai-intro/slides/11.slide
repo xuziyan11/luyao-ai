@@ -1,0 +1,23 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>记忆 · 好感度 · 场景 · 提醒 · 日记</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:36 }}>
+    <Box style={{ width:280, justifyContent:'center' }}>
+      <Text style={{ fontSize:18, color:'rgba(237,239,245,0.55)', letterSpacing:3 }}>FEATURES</Text>
+      <Box style={{ width:64, height:4, borderRadius:2, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', marginTop:16 }} />
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.5)', marginTop:20, lineHeight:1.7 }}>让陪伴「有记忆、有情绪、有节奏」的五块基石。</Text>
+    </Box>
+    <Box style={{ flex:1, flexDirection:'column', gap:13, justifyContent:'center' }}>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='brain' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>长期记忆</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>短期 6 轮 + 长期自动提取，越聊越懂你</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='heart' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>好感度系统</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>对话实时累积情感，档案页可视化呈现</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='magic' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>场景模式</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>日常/晚安/倾诉/逗趣，切换人设与语速</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='bell' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>定时陪伴提醒</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>早安/晚安/纪念日，在线时主动推送</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='book' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>AI 情绪日记</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>自动生成含真实天气的日记，可编辑导出</Text></Box></Box>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>11 / 15</Text>
+  </Box>
+</Slide>

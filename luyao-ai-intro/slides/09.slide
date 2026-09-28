@@ -1,0 +1,12 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', position:'relative', fontFamily:"'PingFang SC','Inter',sans-serif", overflow:'hidden' }}>
+  <Box style={{ position:'absolute', top:-120, right:-100, width:520, height:520, borderRadius:260, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', opacity:0.12 }} />
+  <Box style={{ position:'relative', zIndex:2, height:'100%', padding:'0 110px', justifyContent:'center' }}>
+    <Text style={{ fontSize:200, fontWeight:'bold', color:'rgba(255,255,255,0.06)', lineHeight:1 }}>03</Text>
+    <Box style={{ marginTop:-30 }}>
+      <Text style={{ fontSize:18, color:'rgba(237,239,245,0.55)', letterSpacing:4 }}>CHAPTER 03</Text>
+      <Text style={{ fontSize:64, fontWeight:'bold', color:'#EDEFF5', marginTop:10 }}>功能矩阵</Text>
+      <Box style={{ width:90, height:5, borderRadius:3, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', marginTop:20 }} />
+      <Text style={{ fontSize:20, color:'rgba(237,239,245,0.7)', marginTop:24 }}>对话 · 语音 · 记忆 · 好感度 · 日记</Text>
+    </Box>
+  </Box>
+</Slide>

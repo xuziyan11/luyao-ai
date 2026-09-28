@@ -1,0 +1,30 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>智能对话与语音</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:32 }}>
+    <Box style={{ width:'60%', flexDirection:'column', gap:16 }}>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'center', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:'18px 22px' }}>
+        <FAIcon name='comment' style={{ fill:'#FF6F5E', width:36, height:36 }} />
+        <Box><Text style={{ fontSize:21, fontWeight:'bold', color:'#EDEFF5' }}>流式智能对话</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.7)', marginTop:6, lineHeight:1.5 }}>DeepSeek 驱动，逐句流式输出，对话中实时累积好感度。</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'center', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:'18px 22px' }}>
+        <FAIcon name='microphone' style={{ fill:'#FF6F5E', width:36, height:36 }} />
+        <Box><Text style={{ fontSize:21, fontWeight:'bold', color:'#EDEFF5' }}>端到端实时语音通话</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.7)', marginTop:6, lineHeight:1.5 }}>豆包 Realtime 全双工 S2S，支持打断、静音、沉默提示。</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', gap:18, alignItems:'center', background:'rgba(255,255,255,0.05)', borderRadius:14, padding:'18px 22px' }}>
+        <FAIcon name='volume-up' style={{ fill:'#FF6F5E', width:36, height:36 }} />
+        <Box><Text style={{ fontSize:21, fontWeight:'bold', color:'#EDEFF5' }}>语音合成与声音复刻</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.7)', marginTop:6, lineHeight:1.5 }}>火山 TTS 甜美女声，支持自定义音色复刻。</Text></Box>
+      </Box>
+    </Box>
+    <Box style={{ width:'40%', background:'linear-gradient(135deg,rgba(255,111,94,0.14) 0%,rgba(255,174,107,0.14) 100%)', borderRadius:16, padding:28, justifyContent:'center' }}>
+      <FAIcon name='bolt' style={{ fill:'#FFAE6B', width:48, height:48 }} />
+      <Text style={{ fontSize:24, fontWeight:'bold', color:'#EDEFF5', marginTop:18, lineHeight:1.5 }}>低延迟<br />全双工体验</Text>
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.72)', marginTop:16, lineHeight:1.7 }}>ASR + LLM + TTS 在单一 WebSocket 内完成，对话像真人一样自然连贯。</Text>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>10 / 15</Text>
+  </Box>
+</Slide>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>路瑶 · 后台管理系统</title>
+    <style>
+        :root {
+            /* 品牌主色：绿色（模块统一绿色调） */
+            --brand: #2e9e5b;
+            --brand-d: #1f7a43;
+            --brand-l: #e7f6ec;
+            --brand-grad: linear-gradient(135deg, #43c47a, #2e9e5b);
+            /* 交互主色复用原 --green 名 */
+            --green: #2e9e5b;
+            --green-d: #1f7a43;
+            --green-l: #e7f6ec;
+            /* 语义成功绿（状态标签/正常态专用） */
+            --ok: #2e9e5b;
+            --ok-d: #1f7a43;
+            --ok-l: #e7f6ec;
+            --bg: #f5f6f8;
+            --card: #ffffff;
+            --line: #eaecef;
+            --t1: #1f2733;
+            --t2: #5b6675;
+            --t3: #97a1ad;
+            --red: #e0483b;
+            --red-l: #fdecea;
+            --amber: #f08a1d;
+            --amber-l: #fff3e2;
+            --radius: 14px;
+            --shadow: 0 1px 2px rgba(20,30,40,.04), 0 6px 20px rgba(20,30,40,.05);
+            --shadow-lg: 0 14px 44px rgba(20,30,40,.14);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--t1);
+            font-size: 14px;
+        }
+        button { font-family: inherit; cursor: pointer; }
+        input, textarea, select { font-family: inherit; font-size: 14px; }
+
+        /* ---------- 登录门 ---------- */
+        #loginGate {
+            position: fixed; inset: 0; z-index: 100;
+            background: linear-gradient(160deg, #eef4ee 0%, #f7faf7 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        #loginGate.hidden { display: none; }
+        .login-card {
+            width: min(360px, calc(100vw - 32px)); background: var(--card); border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(27, 94, 32, .12);
+            padding: min(40px, 7vw) min(36px, 6vw); text-align: center;
+        }
+        .login-card .logo {
+            width: 56px; height: 56px; margin: 0 auto 14px;
+            border-radius: 50%; background: linear-gradient(135deg, #ff8a65, #ffb74d);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; overflow: hidden; position: relative;
+            color: #fff; font-size: 24px; font-weight: 700;
+        }
+        .login-card .logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; position: absolute; inset: 0; }
+        .login-card h1 { font-size: 20px; margin-bottom: 6px; }
+        .login-card p { color: var(--t2); font-size: 13px; margin-bottom: 24px; }
+        .login-card input {
+            width: 100%; padding: 12px 14px; border: 1px solid var(--line);
+            border-radius: 10px; outline: none; margin-bottom: 12px;
+        }
+        .login-card input:focus { border-color: var(--green); }
+        .login-card button {
+            width: 100%; padding: 12px; border: none; border-radius: 10px;
+            background: var(--green); color: #fff; font-size: 15px; font-weight: 600;
+        }
+        .login-card button:hover { background: var(--green-d); }
+        .login-err { color: var(--red); font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+
+        /* ---------- 布局 ---------- */
+        #app { display: none; min-height: 100vh; }
+        #app.ready { display: flex; }
+        .sidebar {
+            width: 208px; flex-shrink: 0; background: var(--card);
+            border-right: 1px solid var(--line); min-height: 100vh;
+            padding: 20px 12px; position: fixed; left: 0; top: 0; height: 100vh;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+        .brand .logo {
+            width: 36px; height: 36px; min-width: 36px; min-height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8a65, #ffb74d);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 16px;
+            cursor: pointer; overflow: hidden; position: relative;
+        }
+        .brand .logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; position: absolute; inset: 0; }
+        .brand .t { font-weight: 700; font-size: 15px; }
+        .brand .s { font-size: 11px; color: var(--t3); }
+
+        /* ---------- 头像下方实时时钟（北京时间 UTC+8） ---------- */
+        .clock {
+            margin: -8px 6px 16px; padding: 10px 8px 9px;
+            background: linear-gradient(150deg, var(--green-l) 0%, #fdfefd 90%);
+            border: 1px solid var(--line); border-radius: 10px;
+            text-align: center;
+        }
+        .clock-time {
+            font-size: 21px; font-weight: 700; color: var(--green-d);
+            font-variant-numeric: tabular-nums; letter-spacing: .5px; line-height: 1.1;
+        }
+        .clock-date { font-size: 11px; color: var(--t2); margin-top: 4px; white-space: nowrap; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 9px; margin-bottom: 4px;
+            color: var(--t2); font-weight: 500; cursor: pointer; border: none;
+            background: none; width: 100%; text-align: left; font-size: 14px;
+        }
+        .nav-item:hover { background: var(--green-l); color: var(--green-d); }
+        .nav-item.active { background: var(--green); color: #fff; }
+        .nav-item svg { flex-shrink: 0; }
+        .sidebar .foot { position: absolute; bottom: 16px; left: 12px; right: 12px; }
+
+        .main { flex: 1; padding: 22px 26px; min-width: 0; margin-left: 208px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .topbar h2 { font-size: 19px; }
+        .topbar .sub { color: var(--t3); font-size: 12.5px; margin-top: 3px; }
+        .btn {
+            padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+            background: var(--card); color: var(--t2); font-size: 13px; font-weight: 500;
+        }
+        .btn:hover { border-color: var(--green); color: var(--green-d); }
+        .btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+        .btn.primary:hover { background: var(--green-d); }
+        .btn.danger { color: var(--red); }
+        .btn.danger:hover { border-color: var(--red); }
+        .btn.sm { padding: 5px 10px; font-size: 12px; }
+
+        /* ---------- 卡片与表格 ---------- */
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .stat-card {
+            background: var(--card); border-radius: var(--radius); padding: 16px 18px;
+            box-shadow: var(--shadow); border: 1px solid var(--line);
+        }
+        .stat-card .label { color: var(--t2); font-size: 12.5px; margin-bottom: 8px; }
+        .stat-card .value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .stat-card .value.green { color: var(--green); }
+        .stat-card .value.red { color: var(--red); }
+        .stat-card .hint { font-size: 11.5px; color: var(--t3); margin-top: 6px; }
+
+        .panel {
+            background: var(--card); border-radius: var(--radius); padding: 18px 20px;
+            box-shadow: var(--shadow); border: 1px solid var(--line); margin-bottom: 18px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .panel h3 { font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+        .panel h3 .ops { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
+        th { color: var(--t2); font-weight: 600; font-size: 12px; white-space: nowrap; }
+        td { color: var(--t1); vertical-align: middle; word-break: break-word; }
+        tr:last-child td { border-bottom: none; }
+        .tag {
+            display: inline-block; padding: 2px 8px; border-radius: 99px;
+            font-size: 11.5px; font-weight: 600;
+        }
+        .tag.green { background: var(--ok-l); color: var(--ok-d); }
+        .tag.red { background: var(--red-l); color: var(--red); }
+        .tag.amber { background: var(--amber-l); color: var(--amber); }
+        .tag.gray { background: #eef1ee; color: var(--t2); }
+        .muted { color: var(--t3); font-size: 12px; }
+        .num { font-variant-numeric: tabular-nums; }
+
+        /* ---------- 告警 ---------- */
+        .alert-item {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 10px 12px; border-radius: 9px; margin-bottom: 8px; font-size: 13px;
+        }
+        .alert-item.critical { background: var(--red-l); }
+        .alert-item.warning { background: var(--amber-l); }
+        .alert-item .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .alert-item.critical .dot { background: var(--red); }
+        .alert-item.warning .dot { background: var(--amber); }
+        .alert-item .title { font-weight: 600; margin-bottom: 2px; }
+        .alert-item .detail { color: var(--t2); font-size: 12.5px; }
+        .empty { color: var(--t3); text-align: center; padding: 26px 0; font-size: 13px; }
+
+        /* ---------- 弹窗 ---------- */
+        .modal-mask { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.35);
+                      display: flex; align-items: center; justify-content: center; }
+        .modal-mask.hidden { display: none; }
+        .modal-card { width: min(380px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+                      display: flex; flex-direction: column;
+                      background: var(--card); border-radius: 14px;
+                      box-shadow: 0 12px 48px rgba(0,0,0,.18); overflow: hidden; }
+        .modal-body { padding: 20px 22px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between;
+                      padding: 18px 22px; border-bottom: 1px solid var(--line); }
+        .modal-head h3 { font-size: 16px; }
+        .modal-close { border: none; background: none; font-size: 22px; color: var(--t3);
+                        cursor: pointer; line-height: 1; padding: 0 4px; }
+        .modal-close:hover { color: var(--t1); }
+        .modal-body .form-row { margin-bottom: 16px; }
+        .modal-body input { width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+                           border-radius: 8px; outline: none; }
+        .modal-body input:focus { border-color: var(--green); }
+        .modal-foot { display: flex; justify-content: flex-end; gap: 10px;
+                      padding: 14px 22px; border-top: 1px solid var(--line); background: #fafbf9; }
+
+        /* ---------- 条形图 ---------- */
+        .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 150px; padding-top: 10px; }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; height: 100%; justify-content: flex-end; }
+        .bar-col .bar {
+            width: 100%; max-width: 34px; border-radius: 4px 4px 0 0;
+            background: linear-gradient(180deg, #66bb6a, var(--green));
+            min-height: 2px; transition: height .3s;
+        }
+        .bar-col .x { font-size: 10px; color: var(--t3); white-space: nowrap; transform: scale(.92); }
+        .bar-col:hover .bar { background: var(--green-d); }
+        .range-tabs { display: inline-flex; background: #eef1ee; border-radius: 8px; padding: 3px; }
+        .range-tabs button {
+            border: none; background: none; padding: 5px 14px; border-radius: 6px;
+            font-size: 12.5px; color: var(--t2); font-weight: 500;
+        }
+        .range-tabs button.active { background: var(--card); color: var(--green-d); box-shadow: var(--shadow); }
+
+        /* ---------- 配置表单 ---------- */
+        .form-row { margin-bottom: 18px; }
+        .form-row label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+        .form-row .desc { color: var(--t3); font-size: 12px; margin-top: 5px; }
+        .form-row input[type=text], .form-row input[type=number], .form-row textarea, .form-row select {
+            width: 100%; padding: 9px 12px; border: 1px solid var(--line);
+            border-radius: 8px; outline: none; background: #fbfdfb;
+        }
+        .form-row input:focus, .form-row textarea:focus { border-color: var(--green); }
+        .form-row textarea { min-height: 130px; resize: vertical; line-height: 1.6; }
+        .slider-row { display: flex; align-items: center; gap: 14px; }
+        .slider-row input[type=range] { flex: 1; accent-color: var(--green); }
+        .slider-row .val { width: 52px; text-align: center; font-weight: 700; color: var(--green-d); font-variant-numeric: tabular-nums; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .preset-item {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+        }
+        .preset-item input { flex: 1; padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; }
+        .preset-item input.name { max-width: 130px; }
+        .preset-item input.speed { max-width: 80px; }
+
+        /* ---------- 日志 ---------- */
+        .log-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+        .log-tabs button {
+            border: 1px solid var(--line); background: var(--card); padding: 7px 16px;
+            border-radius: 8px; font-size: 13px; color: var(--t2); font-weight: 500;
+        }
+        .log-tabs button.active { background: var(--green); border-color: var(--green); color: #fff; }
+        .chat-msg { display: flex; margin-bottom: 10px; }
+        .chat-msg .bubble {
+            max-width: 78%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.6;
+            word-break: break-word; white-space: pre-wrap;
+        }
+        .chat-msg.user { justify-content: flex-end; }
+        .chat-msg.user .bubble { background: var(--green); color: #fff; border-bottom-right-radius: 4px; }
+        .chat-msg.assistant .bubble { background: #eef3ee; color: var(--t1); border-bottom-left-radius: 4px; }
+        .chat-log-meta { font-size: 11px; color: var(--t3); margin-bottom: 3px; }
+        .chat-side { display: flex; gap: 16px; }
+        .account-list { width: 220px; flex-shrink: 0; border-right: 1px solid var(--line); padding-right: 14px; max-height: 560px; overflow-y: auto; }
+        .account-item {
+            padding: 9px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; font-size: 13px;
+        }
+        .account-item:hover { background: var(--green-l); }
+        .account-item.active { background: var(--green-l); color: var(--green-d); font-weight: 600; }
+        .account-item .sub { font-size: 11px; color: var(--t3); margin-top: 2px; }
+        .chat-view { flex: 1; max-height: 560px; overflow-y: auto; padding-right: 6px; }
+        .filters { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+        .filters select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+        .switch-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t2); }
+        .switch-row input { accent-color: var(--green); width: 16px; height: 16px; }
+        .pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 12px; font-size: 12.5px; color: var(--t2); }
+
+        .err-text { color: var(--red); font-size: 12px; max-width: 260px; word-break: break-all; }
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--t1); color: #fff; padding: 10px 20px; border-radius: 10px;
+            font-size: 13px; z-index: 200; opacity: 0; transition: opacity .25s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+        .view { display: none; }
+        .view.active { display: block; }
+        @media (max-width: 900px) {
+            .sidebar { width: 64px; padding: 16px 8px; position: fixed; left: 0; top: 0; z-index: 50; }
+            .brand .t, .brand .s, .nav-item span { display: none; }
+            .clock { margin: -8px 0 14px; padding: 7px 2px; }
+            .clock-time { font-size: 13px; letter-spacing: 0; }
+            .clock-date { display: none; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .chat-side { flex-direction: column; }
+            .account-list { width: 100%; border-right: none; max-height: 180px; }
+            .main { margin-left: 64px; padding: 16px 14px; }
+        }
+        /* ---------- 手机端适配（≤600px） ---------- */
+        @media (max-width: 600px) {
+            body { font-size: 13.5px; }
+            .main { padding: 12px 12px 20px; max-width: 100%; }
+            .topbar h2 { font-size: 17px; }
+            .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            .stat-card { padding: 13px 14px; }
+            .stat-card .value { font-size: 21px; }
+            .panel { padding: 14px 12px; border-radius: 10px; }
+            .panel h3 { font-size: 14px; flex-wrap: wrap; gap: 6px; }
+            th, td { padding: 8px 8px; font-size: 12.5px; }
+            .modal-head { padding: 14px 16px; }
+            .modal-body { padding: 16px; }
+            .modal-foot { padding: 12px 16px; }
+            .chat-msg .bubble { max-width: 92%; }
+            .account-list { max-height: 150px; }
+            .chat-view { max-height: 480px; }
+            .err-text { max-width: 100%; }
+            .bar-chart { height: 120px; }
+            .slider-row { flex-wrap: wrap; gap: 8px; }
+            .preset-item input.name { max-width: 42%; }
+            .login-card { border-radius: 14px; }
+        }
+        /* ===== 视觉优化增强（珊瑚橙品牌 · 现代质感） ===== */
+        .sidebar { box-shadow: 2px 0 16px rgba(20,30,40,.04); border-right-color: var(--line); }
+        .nav-item { position: relative; transition: background .18s ease, color .18s ease; }
+        .nav-item.active { box-shadow: inset 3px 0 0 var(--brand); }
+        .nav-item svg { transition: transform .18s ease; }
+        .nav-item:hover svg { transform: scale(1.08); }
+        .btn, .log-tabs button, .range-tabs button, .tag, .nav-item, .account-item, .preset-item input { transition: all .18s ease; }
+        .btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+        .stat-card { position: relative; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; }
+        .stat-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--brand-grad); }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .stat-card .value { letter-spacing: -.5px; }
+        .panel, .modal-card, .login-card { box-shadow: var(--shadow); transition: box-shadow .2s ease; }
+        table tbody tr { transition: background .15s ease; }
+        table tbody tr:hover { background: #fafbfc; }
+        .view.active { animation: viewIn .28s ease both; }
+        @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        .bar-col .bar { background: linear-gradient(180deg, #ffb088, var(--brand)); border-radius: 5px 5px 0 0; }
+        .bar-col:hover .bar { background: var(--brand-d); }
+        *::-webkit-scrollbar { width: 9px; height: 9px; }
+        *::-webkit-scrollbar-thumb { background: #d7dbe0; border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+        *::-webkit-scrollbar-thumb:hover { background: #c2c8d0; }
+        .clock { box-shadow: inset 0 0 0 1px rgba(46,158,91,.10); }
+        .login-card button { box-shadow: 0 6px 18px rgba(46,158,91,.28); }
+        .login-card button:hover { box-shadow: 0 8px 24px rgba(31,122,67,.34); }
+        .modal-mask { backdrop-filter: blur(2px); }
+        .toast { box-shadow: var(--shadow-lg); }
+    </style>
+</head>
+<body>
+
+<!-- 登录门 -->
+<div id="loginGate">
+    <div class="login-card">
+        <div class="logo" id="loginAvatar" title="点击更换头像">瑶</div>
+        <h1>路瑶 · 后台管理系统</h1>
+        <p>用户管理 · 参数配置 · 日志监控 · 资源额度</p>
+        <input type="password" id="pwdInput" placeholder="请输入管理密码" autocomplete="current-password">
+        <button id="loginBtn">进入后台</button>
+        <div class="login-err" id="loginErr"></div>
+    </div>
+</div>
+
+<!-- 主界面 -->
+<div id="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo" id="adminAvatar" title="点击更换头像">瑶</div>
+            <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none">
+            <div>
+                <div class="t">路瑶后台</div>
+                <div class="s">Admin Console</div>
+            </div>
+        </div>
+        <!-- 头像下方：实时北京时间时钟（全站时间显示统一以它为基准） -->
+        <div class="clock" id="bjClock" title="所有时间均按北京时间显示">
+            <div class="clock-time" id="bjTime">--:--</div>
+            <div class="clock-date" id="bjDate">加载中…</div>
+        </div>
+        <button class="nav-item active" data-view="overview">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+            <span>概览</span>
+        </button>
+        <button class="nav-item" data-view="users">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>用户管理</span>
+        </button>
+        <button class="nav-item" data-view="config">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>参数配置</span>
+        </button>
+        <button class="nav-item" data-view="logs">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>日志监控</span>
+        </button>
+        <button class="nav-item" data-view="resources">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>资源额度</span>
+        </button>
+        <div class="foot">
+            <button class="nav-item" id="logoutBtn">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>退出后台</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <!-- 概览 -->
+        <section class="view active" id="view-overview">
+            <div class="topbar">
+                <div>
+                    <h2>概览</h2>
+                    <div class="sub">系统运行状态一目了然</div>
+                </div>
+                <button class="btn" onclick="loadOverview()">刷新</button>
+            </div>
+            <div class="cards" id="ovCards"></div>
+            <div class="panel">
+                <h3>异常告警 <span class="ops"><span class="muted" id="alertTime"></span></span></h3>
+                <div id="alertList"></div>
+            </div>
+            <div class="panel">
+                <h3>接口延迟（近 24 小时）</h3>
+                <table id="ovLatency"></table>
+            </div>
+        </section>
+
+        <!-- 用户管理 -->
+        <section class="view" id="view-users">
+            <div class="topbar">
+                <div>
+                    <h2>用户管理</h2>
+                    <div class="sub">注册账号 · 状态管控 · 活跃度统计</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <button class="btn primary" onclick="openCreateUserDialog()">+ 新建用户</button>
+                    <button class="btn" onclick="loadUsers()">刷新</button>
+                </div>
+            </div>
+            <div class="panel">
+                <table id="userTable"></table>
+            </div>
+        </section>
+
+        <!-- 新建用户弹窗 -->
+        <div id="createUserModal" class="modal-mask hidden">
+            <div class="modal-card">
+                <div class="modal-head">
+                    <h3>新建用户</h3>
+                    <button class="modal-close" onclick="closeCreateUserDialog()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label>手机号</label>
+                        <input id="cuPhone" type="text" placeholder="11 位手机号" maxlength="11" inputmode="numeric">
+                        <div class="desc">用户将用此手机号 + 密码登录</div>
+                    </div>
+                    <div class="form-row">
+                        <label>初始密码</label>
+                        <input id="cuPassword" type="text" placeholder="6-64 位">
+                        <div class="desc">创建后可由用户自行修改</div>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button class="btn" onclick="closeCreateUserDialog()">取消</button>
+                    <button class="btn primary" onclick="submitCreateUser()">创建</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 重置密码弹窗 -->
+        <div id="resetPwdModal" class="modal-mask hidden">
+            <div class="modal-card">
+                <div class="modal-head">
+                    <h3>重置密码</h3>
+                    <button class="modal-close" onclick="closeResetPwdDialog()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="desc" style="margin-bottom:10px">为账号 ID <span id="rpId"></span> 设置新密码，旧密码立即失效</div>
+                    <div class="form-row">
+                        <label>新密码</label>
+                        <input id="rpPassword" type="text" placeholder="6-64 位">
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button class="btn" onclick="closeResetPwdDialog()">取消</button>
+                    <button class="btn primary" onclick="submitResetPwd()">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参数配置 -->
+        <section class="view" id="view-config">
+            <div class="topbar">
+                <div>
+                    <h2>参数动态配置</h2>
+                    <div class="sub">在线修改，主站即时生效，无需改 yml、无需重启</div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>路瑶人设（system prompt 定制）</h3>
+                <div class="form-row">
+                    <textarea id="cfgPersona" placeholder="留空则使用内置人设。填写后将追加到 system prompt 最高优先级位置，例如：&#10;最近路瑶在准备考试，聊天时会偶尔提到复习进度。&#10;称呼对方为「哥哥」。"></textarea>
+                    <div class="desc">保存后约 5 秒内对新的对话生效（内置格式规则 ||| 拆句与好感度标记不受影响）</div>
+                </div>
+                <button class="btn primary" onclick="saveConfig(['prompt.custom_persona'])">保存人设</button>
+            </div>
+            <div class="panel">
+                <h3>模型参数（DeepSeek）</h3>
+                <div class="grid-2">
+                    <div class="form-row">
+                        <label>温度 temperature</label>
+                        <div class="slider-row">
+                            <input type="range" id="cfgTemp" min="0" max="2" step="0.05" oninput="document.getElementById('cfgTempVal').textContent=this.value">
+                            <span class="val" id="cfgTempVal">-</span>
+                        </div>
+                        <div class="desc">越高越发散有创意，越低越稳定（内置默认 0.85）</div>
+                    </div>
+                    <div class="form-row">
+                        <label>top_p</label>
+                        <div class="slider-row">
+                            <input type="range" id="cfgTopP" min="0.1" max="1" step="0.05" oninput="document.getElementById('cfgTopPVal').textContent=this.value">
+                            <span class="val" id="cfgTopPVal">-</span>
+                        </div>
+                        <div class="desc">核采样比例（内置默认 1.0）</div>
+                    </div>
+                </div>
+                <div class="form-row" style="max-width:220px">
+                    <label>最大输出 max_tokens</label>
+                    <input type="number" id="cfgMaxTokens" min="20" max="4096" step="10">
+                    <div class="desc">内置默认 80（短句聊天场景）</div>
+                </div>
+                <button class="btn primary" onclick="saveConfig(['deepseek.temperature','deepseek.top_p','deepseek.max_tokens'])">保存模型参数</button>
+            </div>
+            <div class="panel">
+                <h3>TTS 语音默认值</h3>
+                <div class="grid-2">
+                    <div class="form-row">
+                        <label>默认音色 ID</label>
+                        <input type="text" id="cfgTtsVoice" placeholder="如 zh_female_xiaohe_uranus_bigtts">
+                        <div class="desc">主站 /api/tts/status 会实时返回该默认值</div>
+                    </div>
+                    <div class="form-row">
+                        <label>默认语速倍率</label>
+                        <input type="text" id="cfgTtsSpeed" placeholder="如 1.0">
+                    </div>
+                </div>
+                <button class="btn primary" onclick="saveConfig(['tts.default_voice','tts.speed'])">保存 TTS 默认值</button>
+            </div>
+            <div class="panel">
+                <h3>TTS 预设方案 <span class="ops"><button class="btn sm" onclick="addPreset()">+ 添加预设</button></span></h3>
+                <div id="presetList"></div>
+                <div class="desc" style="margin-bottom:12px">每套预设 = 名称 + 音色 ID + 语速，保存后存入配置（tts.presets），供主站按需读取</div>
+                <button class="btn primary" onclick="savePresets()">保存预设</button>
+            </div>
+            <div class="panel">
+                <h3>告警阈值</h3>
+                <div class="form-row" style="max-width:220px">
+                    <label>接口失败率告警阈值（%）</label>
+                    <input type="number" id="cfgFailRate" min="1" max="100">
+                    <div class="desc">近 1 小时失败率超过该值即触发告警（默认 20）</div>
+                </div>
+                <button class="btn primary" onclick="saveConfig(['alert.fail_rate_pct'])">保存阈值</button>
+            </div>
+        </section>
+
+        <!-- 日志监控 -->
+        <section class="view" id="view-logs">
+            <div class="topbar">
+                <div>
+                    <h2>日志与监控</h2>
+                    <div class="sub">对话记录 · 接口调用 · 在线连接</div>
+                </div>
+                <div class="switch-row">
+                    <input type="checkbox" id="autoRefresh">
+                    <label for="autoRefresh">每 5 秒自动刷新</label>
+                </div>
+            </div>
+            <div class="log-tabs">
+                <button class="active" data-tab="chat" onclick="switchLogTab('chat')">对话日志</button>
+                <button data-tab="api" onclick="switchLogTab('api')">接口日志（TTS/DeepSeek）</button>
+                <button data-tab="ws" onclick="switchLogTab('ws')">WebSocket 在线</button>
+            </div>
+            <div class="panel" id="logPaneChat">
+                <div class="chat-side">
+                    <div class="account-list" id="logAccounts"></div>
+                    <div class="chat-view" id="chatLogView"><div class="empty">选择左侧账号查看完整对话记录</div></div>
+                </div>
+            </div>
+            <div class="panel" id="logPaneApi" style="display:none">
+                <div class="filters">
+                    <select id="apiTypeFilter" onchange="loadApiLogs(1)">
+                        <option value="">全部类型</option>
+                        <option value="deepseek">DeepSeek</option>
+                        <option value="tts">TTS 合成</option>
+                        <option value="tts_clone">声音复刻</option>
+                    </select>
+                    <select id="apiOkFilter" onchange="loadApiLogs(1)">
+                        <option value="">全部结果</option>
+                        <option value="true">成功</option>
+                        <option value="false">失败</option>
+                    </select>
+                    <span class="muted" id="apiLogTotal"></span>
+                </div>
+                <table id="apiLogTable"></table>
+                <div class="pager" id="apiLogPager"></div>
+            </div>
+            <div class="panel" id="logPaneWs" style="display:none">
+                <h3>当前在线连接 <span class="ops"><button class="btn sm" onclick="loadWs()">刷新</button></span></h3>
+                <table id="wsTable"></table>
+            </div>
+        </section>
+
+        <!-- 资源额度 -->
+        <section class="view" id="view-resources">
+            <div class="topbar">
+                <div>
+                    <h2>资源与额度监控</h2>
+                    <div class="sub">Token 用量 · 本地模型占用 · 延迟分布</div>
+                </div>
+                <button class="btn" onclick="loadResources()">刷新</button>
+            </div>
+            <div class="cards" id="resCards"></div>
+            <div class="panel">
+                <h3>
+                    Token 用量趋势
+                    <span class="ops">
+                        <span class="range-tabs">
+                            <button data-range="day" onclick="setRange('day')">日</button>
+                            <button class="active" data-range="week" onclick="setRange('week')">周</button>
+                            <button data-range="month" onclick="setRange('month')">月</button>
+                        </span>
+                    </span>
+                </h3>
+                <div class="bar-chart" id="tokenChart"></div>
+            </div>
+            <div class="panel">
+                <h3>今日单用户消耗排行 <span class="muted" style="font-size:12px">超过人均 3 倍自动标记</span></h3>
+                <table id="topUserTable"></table>
+            </div>
+            <div class="panel">
+                <h3>模型响应延迟（近 24 小时）</h3>
+                <table id="latencyTable"></table>
+            </div>
+            <div class="panel">
+                <h3>系统与本地模型占用</h3>
+                <div id="sysMetrics"></div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ---------- 工具 ----------
+const $ = (id) => document.getElementById(id);
+function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+}
+async function api(path, options) {
+    const resp = await fetch(path, options);
+    if (resp.status === 401) {
+        showLogin();
+        throw new Error('未登录');
+    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+}
+async function post(path, params) {
+    const body = new URLSearchParams(params || {});
+    return api(path, { method: 'POST', body });
+}
+// ---------- 北京时间（UTC+8）统一基准 ----------
+// 显式偏移到 UTC+8 再取字段，显示不随浏览器所在时区变化，与侧栏时钟一致
+function bjDate(ts) {
+    const d = new Date(ts);
+    return new Date(d.getTime() + (d.getTimezoneOffset() + 480) * 60000);
+}
+const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+function pad2(n) { return String(n).padStart(2, '0'); }
+// 头像下方实时时钟：每秒刷新
+function tickClock() {
+    const d = bjDate(Date.now());
+    const timeEl = $('bjTime'), dateEl = $('bjDate');
+    if (!timeEl) return;
+    timeEl.textContent = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    dateEl.textContent = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${WEEKDAYS[d.getDay()]}`;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+function fmtTime(ts) {
+    if (!ts) return '—';
+    const d = bjDate(ts);
+    return `${d.getMonth() + 1}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function fmtNum(n) {
+    n = Number(n) || 0;
+    return n >= 10000 ? (n / 10000).toFixed(1) + 'w' : String(n);
+}
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+// ---------- 登录 ----------
+function showLogin() {
+    $('loginGate').classList.remove('hidden');
+    $('app').classList.remove('ready');
+}
+function showApp() {
+    $('loginGate').classList.add('hidden');
+    $('app').classList.add('ready');
+    loadOverview();
+}
+async function doLogin() {
+    const pwd = $('pwdInput').value.trim();
+    if (!pwd) { $('loginErr').textContent = '请输入管理密码'; return; }
+    try {
+        const r = await post('/api/admin/login', { password: pwd });
+        if (r.ok) { $('loginErr').textContent = ''; showApp(); }
+        else { $('loginErr').textContent = r.message || '密码错误'; }
+    } catch (e) { $('loginErr').textContent = '网络错误，请重试'; }
+}
+$('loginBtn').addEventListener('click', doLogin);
+$('pwdInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+$('logoutBtn').addEventListener('click', async () => {
+    await post('/api/admin/logout').catch(() => {});
+    location.reload();
+});
+// 启动时探测管理会话是否仍有效
+api('/api/admin/check').then(showApp).catch(() => {});
+
+// ---------- 导航 ----------
+const loaders = { overview: loadOverview, users: loadUsers, config: loadConfig, logs: loadLogs, resources: loadResources };
+document.querySelectorAll('.nav-item[data-view]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item[data-view]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+        $('view-' + view).classList.add('active');
+        loaders[view] && loaders[view]();
+    });
+});
+
+// ---------- 概览 ----------
+async function loadOverview() {
+    try {
+        const d = await api('/api/admin/overview');
+        $('ovCards').innerHTML = [
+            statCard('注册账号', d.accountCount, '个', 'green'),
+            statCard('当前在线', d.onlineUsers, '人', 'green'),
+            statCard('今日接口调用', fmtNum(d.todayApiCalls), '次'),
+            statCard('今日 Token 消耗', fmtNum(d.todayTokens), 'tokens'),
+            statCard('近 1 小时失败率', d.hourFailRate, '%', d.hourFailRate > 20 ? 'red' : ''),
+        ].join('');
+        const alerts = d.alerts || [];
+        $('alertTime').textContent = '实时计算 · ' + fmtTime(Date.now());
+        $('alertList').innerHTML = alerts.length === 0
+            ? '<div class="empty">一切正常，没有告警</div>'
+            : alerts.map((a) => `<div class="alert-item ${a.level}"><span class="dot"></span><div><div class="title">${esc(a.title)}</div><div class="detail">${esc(a.detail)}</div></div></div>`).join('');
+        renderLatencyTable($('ovLatency'), (await api('/api/admin/stats/latency')).stats);
+    } catch (e) { /* 401 已处理 */ }
+}
+function statCard(label, value, unit, colorCls) {
+    return `<div class="stat-card"><div class="label">${label}</div><div class="value ${colorCls || ''}">${value}<span style="font-size:13px;font-weight:500;color:var(--t3);margin-left:4px">${unit}</span></div></div>`;
+}
+function renderLatencyTable(table, stats) {
+    table.innerHTML = '<tr><th>接口</th><th>调用次数</th><th>P50</th><th>P95</th><th>P99</th></tr>'
+        + (stats || []).map((s) => `<tr><td>${esc(s.apiType)}</td><td class="num">${s.count}</td><td class="num">${(s.p50 / 1000).toFixed(1)}s</td><td class="num">${(s.p95 / 1000).toFixed(1)}s</td><td class="num">${(s.p99 / 1000).toFixed(1)}s</td></tr>`).join('');
+}
+
+// ---------- 用户管理 ----------
+async function loadUsers() {
+    const d = await api('/api/admin/users');
+    const users = d.users || [];
+    $('userTable').innerHTML = '<tr><th>ID</th><th>账号</th><th>类型</th><th>注册时间</th><th>最后登录</th><th>对话次数</th><th>活跃天数</th><th>使用时长</th><th>好感度</th><th>记忆</th><th>状态</th><th>操作</th></tr>'
+        + users.map((u) => {
+            const disabled = u.status === 'disabled';
+            return `<tr>
+                <td class="num">${u.id}</td>
+                <td>${esc(u.nickname || '—')}<div class="muted">${esc(u.phone || '')}</div></td>
+                <td><span class="tag ${u.loginType === 'phone' ? 'green' : 'gray'}">${u.loginType === 'phone' ? '手机号' : '微信'}</span></td>
+                <td class="muted">${fmtTime(u.createdAt)}</td>
+                <td class="muted">${fmtTime(u.lastLoginAt)}</td>
+                <td class="num">${u.chatCount}</td>
+                <td class="num">${u.activeDays}</td>
+                <td class="num">${u.usageMinutes >= 60 ? (u.usageMinutes / 60).toFixed(1) + 'h' : u.usageMinutes + 'min'}</td>
+                <td class="num">${u.affinity}</td>
+                <td class="num">${u.memoryCount}</td>
+                <td><span class="tag ${disabled ? 'red' : 'green'}">${disabled ? '已禁用' : '正常'}</span></td>
+                <td style="white-space:nowrap">
+                    <button class="btn sm ${disabled ? '' : 'danger'}" onclick="toggleUser(${u.id}, ${!disabled})">${disabled ? '启用' : '禁用'}</button>
+                    <button class="btn sm" onclick="openResetPwdDialog(${u.id})">重置密码</button>
+                    <button class="btn sm" onclick="resetLogin(${u.id})">恢复码</button>
+                </td>
+            </tr>`;
+        }).join('');
+    if (users.length === 0) $('userTable').innerHTML += '<tr><td colspan="12" class="empty">还没有注册账号</td></tr>';
+}
+async function toggleUser(id, disable) {
+    if (!confirm(disable ? '确定禁用该账号？禁用后其将无法登录。' : '确定恢复该账号？')) return;
+    await post(`/api/admin/users/${id}/status`, { disabled: disable });
+    toast(disable ? '账号已禁用' : '账号已启用');
+    loadUsers();
+}
+async function resetLogin(id) {
+    const r = await post(`/api/admin/users/${id}/recovery-code`);
+    if (r.ok) {
+        prompt('一次性恢复码（10 分钟内有效，仅可用一次），请发给用户在登录页验证码栏使用：', r.code);
+    } else {
+        toast(r.message || '该账号不支持恢复码');
+    }
+}
+function openCreateUserDialog() {
+    $('cuPhone').value = '';
+    $('cuPassword').value = '';
+    $('createUserModal').classList.remove('hidden');
+    setTimeout(() => $('cuPhone').focus(), 50);
+}
+function closeCreateUserDialog() {
+    $('createUserModal').classList.add('hidden');
+}
+async function submitCreateUser() {
+    const phone = $('cuPhone').value.trim();
+    const password = $('cuPassword').value;
+    if (!/^1\d{10}$/.test(phone)) { toast('手机号格式不正确'); return; }
+    if (!password || password.length < 6 || password.length > 64) { toast('密码长度需 6-64 位'); return; }
+    const r = await post('/api/admin/users', { phone, password });
+    if (r.ok) {
+        toast(r.message || '用户创建成功');
+        closeCreateUserDialog();
+        loadUsers();
+    } else {
+        toast(r.message || '创建失败');
+    }
+}
+function openResetPwdDialog(id) {
+    $('rpId').textContent = id;
+    $('rpPassword').value = '';
+    $('resetPwdModal').classList.remove('hidden');
+    setTimeout(() => $('rpPassword').focus(), 50);
+}
+function closeResetPwdDialog() {
+    $('resetPwdModal').classList.add('hidden');
+}
+async function submitResetPwd() {
+    const id = $('rpId').textContent;
+    const password = $('rpPassword').value;
+    if (!password || password.length < 6 || password.length > 64) { toast('密码长度需 6-64 位'); return; }
+    if (!confirm(`确定重置账号 ${id} 的密码？`)) return;
+    const r = await post(`/api/admin/users/${id}/reset-password`, { password });
+    if (r.ok) {
+        toast(r.message || '密码已重置');
+        closeResetPwdDialog();
+    } else {
+        toast(r.message || '重置失败');
+    }
+}
+
+// ---------- 参数配置 ----------
+const CFG_FIELDS = {
+    'prompt.custom_persona': (v) => { $('cfgPersona').value = v; },
+    // 滑块空值时显示内置默认（仅展示，保存才落库）
+    'deepseek.temperature': (v) => { const val = v === '' ? '0.85' : v; $('cfgTemp').value = val; $('cfgTempVal').textContent = val; },
+    'deepseek.top_p': (v) => { const val = v === '' ? '1.0' : v; $('cfgTopP').value = val; $('cfgTopPVal').textContent = val; },
+    'deepseek.max_tokens': (v) => { $('cfgMaxTokens').value = v; $('cfgMaxTokens').placeholder = v === '' ? '80（内置默认）' : ''; },
+    'tts.default_voice': (v) => { $('cfgTtsVoice').value = v; },
+    'tts.speed': (v) => { $('cfgTtsSpeed').value = v; },
+    'alert.fail_rate_pct': (v) => { $('cfgFailRate').value = v; },
+};
+async function loadConfig() {
+    const d = await api('/api/admin/config');
+    Object.entries(CFG_FIELDS).forEach(([k, set]) => set(d[k] ?? ''));
+    renderPresets(d['tts.presets']);
+}
+async function saveConfig(keys) {
+    const params = {};
+    for (const k of keys) {
+        if (k === 'prompt.custom_persona') params[k] = $('cfgPersona').value;
+        else if (k === 'deepseek.temperature') params[k] = $('cfgTemp').value;
+        else if (k === 'deepseek.top_p') params[k] = $('cfgTopP').value;
+        else if (k === 'deepseek.max_tokens') params[k] = $('cfgMaxTokens').value;
+        else if (k === 'tts.default_voice') params[k] = $('cfgTtsVoice').value;
+        else if (k === 'tts.speed') params[k] = $('cfgTtsSpeed').value;
+        else if (k === 'alert.fail_rate_pct') params[k] = $('cfgFailRate').value;
+    }
+    const r = await post('/api/admin/config', params);
+    if (r.ok) toast('已保存，主站即时生效');
+}
+let presets = [];
+function renderPresets(json) {
+    try { presets = json ? JSON.parse(json) : []; } catch (e) { presets = []; }
+    if (!Array.isArray(presets)) presets = [];
+    $('presetList').innerHTML = presets.map((p, i) => presetRow(i, p)).join('')
+        || '<div class="muted" style="margin-bottom:8px">暂无预设</div>';
+}
+function presetRow(i, p) {
+    return `<div class="preset-item">
+        <input class="name" placeholder="预设名" value="${esc(p.name || '')}" onchange="presets[${i}].name=this.value">
+        <input placeholder="音色 ID" value="${esc(p.voice || '')}" onchange="presets[${i}].voice=this.value">
+        <input class="speed" placeholder="语速" value="${esc(p.speed || '1.0')}" onchange="presets[${i}].speed=this.value">
+        <button class="btn sm danger" onclick="presets.splice(${i},1);renderPresets(JSON.stringify(presets))">删</button>
+    </div>`;
+}
+function addPreset() {
+    presets.push({ name: '', voice: 'zh_female_xiaohe_uranus_bigtts', speed: '1.0' });
+    renderPresets(JSON.stringify(presets));
+}
+async function savePresets() {
+    const r = await post('/api/admin/config', { 'tts.presets': JSON.stringify(presets) });
+    if (r.ok) toast('预设已保存');
+}
+
+// ---------- 日志监控 ----------
+let logTab = 'chat';
+let logAccountsCache = [];
+let currentLogAccount = null;
+let apiLogPage = 1;
+function loadLogs() {
+    if (logTab === 'chat') loadLogAccounts();
+    else if (logTab === 'api') loadApiLogs(1);
+    else loadWs();
+}
+function switchLogTab(tab) {
+    logTab = tab;
+    document.querySelectorAll('.log-tabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+    $('logPaneChat').style.display = tab === 'chat' ? '' : 'none';
+    $('logPaneApi').style.display = tab === 'api' ? '' : 'none';
+    $('logPaneWs').style.display = tab === 'ws' ? '' : 'none';
+    loadLogs();
+}
+async function loadLogAccounts() {
+    const d = await api('/api/admin/users');
+    logAccountsCache = d.users || [];
+    $('logAccounts').innerHTML = logAccountsCache.map((u) =>
+        `<div class="account-item ${currentLogAccount === u.id ? 'active' : ''}" onclick="selectLogAccount(${u.id})">
+            ${esc(u.nickname || '账号' + u.id)}
+            <div class="sub">${u.chatCount} 次对话 · ${u.loginType === 'phone' ? '手机' : '微信'}</div>
+        </div>`).join('') || '<div class="empty">暂无账号</div>';
+}
+async function selectLogAccount(id) {
+    currentLogAccount = id;
+    document.querySelectorAll('.account-item').forEach((el) => el.classList.remove('active'));
+    loadLogAccounts();
+    const d = await api(`/api/admin/logs/chat?accountId=${id}&size=80`);
+    const rows = (d.rows || []).slice().reverse();
+    $('chatLogView').innerHTML = rows.length === 0 ? '<div class="empty">该账号还没有对话记录</div>'
+        : rows.map((m) => `<div><div class="chat-log-meta">${m.role === 'user' ? '用户' : '路瑶'} · ${fmtTime(m.createdAt)}</div>
+            <div class="chat-msg ${m.role === 'user' ? 'user' : 'assistant'}"><div class="bubble">${esc(m.content)}</div></div></div>`).join('');
+    $('chatLogView').scrollTop = $('chatLogView').scrollHeight;
+}
+async function loadApiLogs(page) {
+    apiLogPage = page;
+    const type = $('apiTypeFilter').value;
+    const ok = $('apiOkFilter').value;
+    let url = `/api/admin/logs/api?page=${page}&size=30`;
+    if (type) url += `&type=${type}`;
+    if (ok) url += `&ok=${ok}`;
+    const d = await api(url);
+    $('apiLogTotal').textContent = `共 ${d.total} 条`;
+    $('apiLogTable').innerHTML = '<tr><th>时间</th><th>类型</th><th>结果</th><th>延迟</th><th>Token(入/出)</th><th>会话</th><th>错误</th></tr>'
+        + (d.rows || []).map((r) => `<tr>
+            <td class="muted">${fmtTime(r.createdAt)}</td>
+            <td><span class="tag gray">${esc(r.apiType)}</span></td>
+            <td><span class="tag ${r.ok ? 'green' : 'red'}">${r.ok ? '成功' : '失败'}</span></td>
+            <td class="num">${(r.latencyMs / 1000).toFixed(1)}s</td>
+            <td class="num">${r.promptTokens}/${r.completionTokens}</td>
+            <td class="muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${esc((r.sessionId || '—').slice(0, 16))}</td>
+            <td class="err-text">${esc(r.error || '')}</td>
+        </tr>`).join('');
+    const pages = Math.max(1, Math.ceil(d.total / 30));
+    $('apiLogPager').innerHTML = `
+        <button class="btn sm" ${page <= 1 ? 'disabled' : ''} onclick="loadApiLogs(${page - 1})">上一页</button>
+        <span>${page} / ${pages}</span>
+        <button class="btn sm" ${page >= pages ? 'disabled' : ''} onclick="loadApiLogs(${page + 1})">下一页</button>`;
+}
+async function loadWs() {
+    const d = await api('/api/admin/monitor/ws');
+    $('wsTable').innerHTML = `<tr><th>会话标识</th><th>类型</th><th>接入时间</th><th>在线时长</th><th>状态</th></tr>`
+        + (d.users || []).map((u) => {
+            const mins = Math.max(0, Math.round((Date.now() - u.connectedAt) / 60000));
+            const typeTag = u.type === 'voice'
+                ? '<span class="tag" style="background:#e8f4fd;color:#1a73e8">语音</span>'
+                : '<span class="tag" style="background:#e8f5e9;color:#2e7d32">聊天</span>';
+            return `<tr><td style="font-family:monospace;font-size:12px">${esc(u.sessionId)}</td>
+                <td>${typeTag}</td>
+                <td class="muted">${fmtTime(u.connectedAt)}</td>
+                <td class="num">${mins < 60 ? mins + ' 分钟' : (mins / 60).toFixed(1) + ' 小时'}</td>
+                <td><span class="tag ${u.open ? 'green' : 'red'}">${u.open ? '在线' : '断开'}</span></td></tr>`;
+        }).join('')
+        + ((d.users || []).length === 0 ? '<tr><td colspan="5" class="empty">当前没有在线连接</td></tr>' : '');
+}
+// 自动刷新
+setInterval(() => {
+    if ($('autoRefresh') && $('autoRefresh').checked && $('view-logs').classList.contains('active')) {
+        if (logTab === 'ws') loadWs();
+        else if (logTab === 'api') loadApiLogs(apiLogPage);
+        else if (currentLogAccount) selectLogAccount(currentLogAccount);
+    }
+}, 5000);
+
+// ---------- 资源额度 ----------
+let tokenRange = 'week';
+function setRange(r) {
+    tokenRange = r;
+    document.querySelectorAll('.range-tabs button').forEach((b) => b.classList.toggle('active', b.dataset.range === r));
+    loadTokenChart();
+}
+async function loadResources() {
+    loadTokenChart();
+    const [lat, sys] = await Promise.all([
+        api('/api/admin/stats/latency'),
+        api('/api/admin/monitor/system'),
+    ]);
+    renderLatencyTable($('latencyTable'), lat.stats);
+    renderSysMetrics(sys);
+}
+async function loadTokenChart() {
+    const d = await api('/api/admin/stats/tokens?range=' + tokenRange);
+    const s = d.summary || {};
+    $('resCards').innerHTML = [
+        statCard('今日 Token', fmtNum(s.todayTokens), ''),
+        statCard('近 7 天 Token', fmtNum(s.weekTokens), ''),
+        statCard('近 30 天 Token', fmtNum(s.monthTokens), ''),
+        statCard('今日模型调用', fmtNum(s.todayCalls), '次'),
+    ].join('');
+    const series = d.series || [];
+    const max = Math.max(1, ...series.map((x) => x.totalTokens));
+    $('tokenChart').innerHTML = series.length === 0 ? '<div class="empty" style="width:100%">暂无用量数据，产生对话后自动统计</div>'
+        : series.map((x) => {
+            const h = Math.max(2, Math.round(x.totalTokens / max * 110));
+            const label = tokenRange === 'day' ? String(x.bucket).slice(11, 16) : String(x.bucket).slice(5);
+            return `<div class="bar-col" title="${esc(x.bucket)}：${x.totalTokens} tokens / ${x.calls} 次调用">
+                <div class="bar" style="height:${h}px"></div><div class="x">${esc(label)}</div></div>`;
+        }).join('');
+    // 单用户排行 + 异常标记
+    const tops = d.topUsers || [];
+    const avg = tops.length ? tops.reduce((a, b) => a + b.tokens, 0) / tops.length : 0;
+    $('topUserTable').innerHTML = '<tr><th>会话标识</th><th>今日 Token</th><th>调用次数</th><th>状态</th></tr>'
+        + (tops.map((u) => {
+            const abnormal = avg > 0 && u.tokens > avg * 3 && u.tokens > 10000;
+            return `<tr><td style="font-family:monospace;font-size:12px">${esc(u.sessionId)}</td>
+                <td class="num">${fmtNum(u.tokens)}</td><td class="num">${u.calls}</td>
+                <td><span class="tag ${abnormal ? 'red' : 'green'}">${abnormal ? '异常' : '正常'}</span></td></tr>`;
+        }).join('') || '<tr><td colspan="4" class="empty">今日暂无消耗</td></tr>');
+}
+function renderSysMetrics(d) {
+    const memUsedPct = d.systemTotalMemMb ? Math.round((1 - d.systemFreeMemMb / d.systemTotalMemMb) * 100) : 0;
+    let html = `<div class="cards" style="margin-bottom:12px">
+        ${statCard('JVM 堆内存', d.jvmUsedMb + ' / ' + d.jvmMaxMb, 'MB')}
+        ${statCard('服务进程 CPU', d.processCpuPct, '%')}
+        ${statCard('系统 CPU', d.systemCpuPct, '%', d.systemCpuPct > 85 ? 'red' : '')}
+        ${statCard('系统内存占用', memUsedPct, '%', memUsedPct > 90 ? 'red' : '')}
+    </div>`;
+    const procs = d.localModels || [];
+    html += '<table><tr><th>进程</th><th>PID</th><th>CPU%</th><th>内存%</th><th>常驻内存</th></tr>'
+        + (procs.map((p) => `<tr><td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="muted">${esc(p.command)}</td>
+            <td class="num">${p.pid}</td><td class="num">${p.cpuPct}</td><td class="num">${p.memPct}</td><td class="num">${p.rssMb} MB</td></tr>`).join('')
+            || '<tr><td colspan="5" class="empty">未检测到本地 Ollama / llama 进程</td></tr>')
+        + '</table>';
+    $('sysMetrics').innerHTML = html;
+}
+
+// ---- 后台头像：圆形显示 + 点击上传（登录页与侧栏同步，与主站 /avatar/ai 共享） ----
+(function initAdminAvatar() {
+    const els = ['loginAvatar', 'adminAvatar'].map((id) => $(id)).filter(Boolean);
+    const input = $('avatarInput');
+    function setAvatar(url) {
+        els.forEach((el) => { el.innerHTML = '<img src="' + url + '" alt="">'; });
+    }
+    // 页面加载后探测已上传的头像（依次尝试常见后缀）
+    ['.png', '.jpg', '.jpeg', '.webp', '.gif'].forEach((ext) => {
+        const probe = new Image();
+        probe.onload = () => {
+            if (!els[0] || !els[0].querySelector('img')) setAvatar('/avatars/ai' + ext);
+        };
+        probe.src = '/avatars/ai' + ext + '?v=' + Date.now();
+    });
+    els.forEach((el) => el.addEventListener('click', () => input.click()));
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('file', file);
+        toast('头像上传中…');
+        fetch('/avatar/ai', { method: 'POST', body: fd })
+            .then((r) => r.json())
+            .then((j) => {
+                if (j.success) {
+                    setAvatar(j.url);
+                    toast('头像已更新，主站同步生效');
+                } else {
+                    toast('上传失败: ' + (j.message || '未知错误'));
+                }
+            })
+            .catch(() => toast('上传失败，请重试'));
+        input.value = '';
+    });
+})();
+</script>
+</body>
+</html>

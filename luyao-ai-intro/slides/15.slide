@@ -1,0 +1,12 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', position:'relative', fontFamily:"'PingFang SC','Inter',sans-serif", overflow:'hidden' }}>
+  <Box style={{ position:'absolute', top:-140, right:-110, width:540, height:540, borderRadius:270, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', opacity:0.16 }} />
+  <Box style={{ position:'absolute', bottom:-170, left:-90, width:480, height:480, borderRadius:240, background:'linear-gradient(135deg,#FFAE6B 0%,#FF6F5E 100%)', opacity:0.10 }} />
+  <Box style={{ position:'relative', zIndex:2, height:'100%', padding:'0 96px', justifyContent:'center' }}>
+    <Text style={{ fontSize:20, color:'rgba(237,239,245,0.6)', letterSpacing:3 }}>SUMMARY</Text>
+    <Text style={{ fontSize:56, fontWeight:'bold', color:'#EDEFF5', marginTop:18, lineHeight:1.45 }}>有记忆、有温度、<br /><span style={{ backgroundImage:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', backgroundClip:'text', color:'transparent' }}>多端相随</span>的 AI 伴侣</Text>
+    <Text style={{ fontSize:20, color:'rgba(237,239,245,0.72)', marginTop:30, lineHeight:1.7, maxWidth:880 }}>路瑶AI 用扎实的工程底座，把通用聊天升级为可持续生长的情感关系。下一步：扩展多角色人设、强化隐私保护与端到端加密。</Text>
+  </Box>
+  <Box style={{ position:'absolute', bottom:38, left:96, zIndex:2 }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍　|　2026</Text>
+  </Box>
+</Slide>

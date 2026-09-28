@@ -1,0 +1,22 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>账号体系与多端互通</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:32 }}>
+    <Box style={{ width:'52%', flexDirection:'column', gap:16, justifyContent:'center' }}>
+      <Text style={{ fontSize:20, fontWeight:'bold', color:'#FFAE6B' }}>账号体系</Text>
+      <Box style={{ flexDirection:'row', gap:14, alignItems:'center' }}><FAIcon name='mobile' style={{ fill:'#FF6F5E', width:28, height:28 }} /><Text style={{ fontSize:17, color:'rgba(237,239,245,0.8)' }}>手机验证码 / 微信扫码 / 密码登录</Text></Box>
+      <Box style={{ flexDirection:'row', gap:14, alignItems:'center' }}><FAIcon name='layer-group' style={{ fill:'#FF6F5E', width:28, height:28 }} /><Text style={{ fontSize:17, color:'rgba(237,239,245,0.8)' }}>每账号独立物理表，数据天然隔离</Text></Box>
+      <Box style={{ flexDirection:'row', gap:14, alignItems:'center' }}><FAIcon name='shield' style={{ fill:'#FF6F5E', width:28, height:28 }} /><Text style={{ fontSize:17, color:'rgba(237,239,245,0.8)' }}>密码 PBKDF2 加盐哈希存储</Text></Box>
+    </Box>
+    <Box style={{ width:'48%', background:'rgba(255,255,255,0.05)', borderRadius:16, padding:28, justifyContent:'center' }}>
+      <Text style={{ fontSize:20, fontWeight:'bold', color:'#FFAE6B' }}>多端互通</Text>
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.75)', marginTop:14, lineHeight:1.7 }}>微信 iLink 接入后，网页与微信共享同一份记忆与好感度；换设备时「会话合并」把旧记录无损迁到登录账号，关系不断档。</Text>
+      <Box style={{ flexDirection:'row', gap:14, alignItems:'center', marginTop:18 }}><FAIcon name='share' style={{ fill:'#FF6F5E', width:28, height:28 }} /><Text style={{ fontSize:17, color:'rgba(237,239,245,0.8)' }}>一个路瑶，处处相随</Text></Box>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>12 / 15</Text>
+  </Box>
+</Slide>

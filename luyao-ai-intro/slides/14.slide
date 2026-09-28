@@ -1,0 +1,23 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>工程实践 · 安全 · 管理后台</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:36 }}>
+    <Box style={{ width:290, justifyContent:'center' }}>
+      <Text style={{ fontSize:18, color:'rgba(237,239,245,0.55)', letterSpacing:3 }}>ENGINEERING</Text>
+      <Box style={{ width:64, height:4, borderRadius:2, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', marginTop:16 }} />
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.5)', marginTop:20, lineHeight:1.7 }}>在「快速迭代」与「稳健可运维」之间做了平衡。</Text>
+    </Box>
+    <Box style={{ flex:1, flexDirection:'column', gap:13, justifyContent:'center' }}>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='layer-group' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>单 JVM 双端口</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>主站 8083 + 后台 8084，端口隔离防越权</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='database' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>账号数据物理隔离</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>每账号独立表，互不串数据</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='lock' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>安全基本功</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>PBKDF2 密码哈希 + 全参数化 SQL 防注入</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='cog' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>在线动态配置</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>白名单键，免重启改 prompt / 模型参数</Text></Box></Box>
+      <Box style={{ flexDirection:'row', gap:16, alignItems:'center' }}><FAIcon name='chart-line' style={{ fill:'#FF6F5E', width:30, height:30 }} /><Box><Text style={{ fontSize:19, fontWeight:'bold', color:'#EDEFF5' }}>可视化管理后台</Text><Text style={{ fontSize:14, color:'rgba(237,239,245,0.65)' }}>用户 / 日志 / Token / 延迟 / WS 在线监控</Text></Box></Box>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>14 / 15</Text>
+  </Box>
+</Slide>

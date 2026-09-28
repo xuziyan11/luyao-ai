@@ -1,0 +1,34 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', padding:'20px 60px', fontFamily:"'PingFang SC','Inter',sans-serif", position:'relative' }}>
+  <Box style={{ height:100, justifyContent:'center' }}>
+    <Text style={{ fontSize:34, fontWeight:'bold', color:'#EDEFF5' }}>目录</Text>
+  </Box>
+  <Box style={{ height:500, flexDirection:'row', gap:40 }}>
+    <Box style={{ width:300, justifyContent:'center' }}>
+      <Text style={{ fontSize:18, color:'rgba(237,239,245,0.55)', letterSpacing:4 }}>CONTENTS</Text>
+      <Box style={{ width:64, height:4, borderRadius:2, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', marginTop:16 }} />
+      <Text style={{ fontSize:16, color:'rgba(237,239,245,0.5)', marginTop:20, lineHeight:1.7 }}>从产品定位到工程亮点，四章讲清路瑶AI。</Text>
+    </Box>
+    <Box style={{ flex:1, flexDirection:'column', justifyContent:'space-between' }}>
+      <Box style={{ flexDirection:'row', alignItems:'center', gap:24, paddingBottom:18, borderBottom:'1px solid rgba(255,255,255,0.10)' }}>
+        <Text style={{ fontSize:40, fontWeight:'bold', color:'#FF6F5E', width:70 }}>01</Text>
+        <Box><Text style={{ fontSize:24, fontWeight:'bold', color:'#EDEFF5' }}>产品定位</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.55)' }}>它是什么，解决什么问题</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', alignItems:'center', gap:24, paddingBottom:18, borderBottom:'1px solid rgba(255,255,255,0.10)' }}>
+        <Text style={{ fontSize:40, fontWeight:'bold', color:'#FF6F5E', width:70 }}>02</Text>
+        <Box><Text style={{ fontSize:24, fontWeight:'bold', color:'#EDEFF5' }}>技术架构</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.55)' }}>技术栈与系统架构图</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', alignItems:'center', gap:24, paddingBottom:18, borderBottom:'1px solid rgba(255,255,255,0.10)' }}>
+        <Text style={{ fontSize:40, fontWeight:'bold', color:'#FF6F5E', width:70 }}>03</Text>
+        <Box><Text style={{ fontSize:24, fontWeight:'bold', color:'#EDEFF5' }}>功能矩阵</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.55)' }}>对话·语音·记忆·好感度·日记</Text></Box>
+      </Box>
+      <Box style={{ flexDirection:'row', alignItems:'center', gap:24, paddingBottom:18, borderBottom:'1px solid rgba(255,255,255,0.10)' }}>
+        <Text style={{ fontSize:40, fontWeight:'bold', color:'#FF6F5E', width:70 }}>04</Text>
+        <Box><Text style={{ fontSize:24, fontWeight:'bold', color:'#EDEFF5' }}>工程亮点</Text><Text style={{ fontSize:15, color:'rgba(237,239,245,0.55)' }}>隔离·安全·管理后台</Text></Box>
+      </Box>
+    </Box>
+  </Box>
+  <Box style={{ height:60, flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍</Text>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>02 / 15</Text>
+  </Box>
+</Slide>

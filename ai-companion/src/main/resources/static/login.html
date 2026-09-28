@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>路瑶 - 登录</title>
+    <!-- PWA -->
+    <meta name="theme-color" content="#0B0D12">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="路瑶">
+    <link rel="apple-touch-icon" href="/icons/icon-180.png">
+    <style>
+        :root{
+            --bg:#FFF8F0;
+            --s1:rgba(255,255,255,.55);
+            --s2:rgba(255,255,255,.72);
+            --line:rgba(255,111,94,.12);
+            --line2:rgba(255,111,94,.18);
+            --t1:#2D2A26;
+            --t2:#6B6560;
+            --t3:#A39D96;
+            --coral:#FF6F5E;
+            --amber:#FFAE6B;
+            --grad:linear-gradient(135deg,#FF8A6B 0%,#FFB26B 100%);
+            --gradSoft:linear-gradient(135deg,rgba(255,138,107,.10),rgba(255,178,107,.06));
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(ellipse at 70% 85%, rgba(210,185,160,.25), transparent 55%),
+                radial-gradient(ellipse at 20% 20%, rgba(255,245,230,.6), transparent 50%),
+                linear-gradient(180deg, #EDE4D8 0%, #E5DCCF 50%, #DDD4C6 100%);
+            color: var(--t1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+        /* 窗户光影效果：窗框投在墙上的柔和斜向光影 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -25%; left: -18%;
+            width: 55%; height: 90%;
+            background:
+                /* 窗框竖框投影 */
+                linear-gradient(90deg,
+                    rgba(255,250,240,.0) 0%,
+                    rgba(255,250,240,.50) 8%,
+                    rgba(255,250,240,.42) 10%,
+                    rgba(255,250,240,.0) 18%),
+                /* 窗框横框投影 */
+                linear-gradient(0deg,
+                    rgba(255,250,240,.0) 0%,
+                    rgba(255,250,240,.38) 6%,
+                    rgba(255,250,240,.32) 8%,
+                    rgba(255,250,240,.0) 16%),
+                /* 大面积柔光 */
+                radial-gradient(ellipse at 30% 30%, rgba(255,250,240,.55) 0%, transparent 55%);
+            transform: rotate(-8deg);
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(0.5px);
+        }
+
+        .login {
+            flex: 1;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 34px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 光球 */
+        .orb {
+            width: 96px; height: 96px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 35% 28%, rgba(255,255,255,.95), rgba(255,255,255,0) 38%),
+                radial-gradient(circle at 65% 72%, #FFC4A8, #FF8A5E 55%, #FF6038);
+            box-shadow:
+                0 10px 36px rgba(255,100,60,.38),
+                0 0 70px rgba(255,150,100,.28),
+                inset 0 -6px 16px rgba(180,60,30,.18),
+                inset 0 4px 14px rgba(255,255,255,.45);
+            margin-top: 9vh;
+            animation: float 4.5s ease-in-out infinite;
+            position: relative;
+        }
+        .orb .eye {
+            position: absolute;
+            top: 42%;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: #2D1A14;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,.4);
+        }
+        .orb .eye.l { left: 26%; }
+        .orb .eye.r { right: 26%; }
+        .orb .mouth {
+            position: absolute;
+            left: 50%;
+            top: 62%;
+            transform: translateX(-50%);
+            width: 22px; height: 12px;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            border: none;
+            background: #2D1A14;
+            clip-path: inset(0 0 50% 0 round 22px);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .name {
+            margin-top: 22px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            color: var(--t1);
+        }
+        .slogan {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--t3);
+            letter-spacing: 2px;
+        }
+
+        /* 登录方式切换 */
+        .tabs {
+            margin-top: 34px;
+            width: 100%;
+            display: flex;
+            background: rgba(255,255,255,.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,.8);
+            border-radius: 16px;
+            padding: 4px;
+            gap: 4px;
+            box-shadow: 0 4px 20px rgba(255,120,80,.08);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--t2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .25s;
+            user-select: none;
+        }
+        .tab.active {
+            background: var(--grad);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(255,110,70,.4);
+        }
+
+        .pane { width: 100%; margin-top: 22px; display: none; }
+        .pane.active { display: block; }
+
+        .field {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,.9);
+            border-radius: 16px;
+            padding: 4px 6px 4px 18px;
+            margin-bottom: 14px;
+            transition: all .2s;
+            box-shadow: 0 2px 12px rgba(255,120,80,.06);
+        }
+        .field:focus-within {
+            border-color: rgba(255,111,94,.35);
+            box-shadow: 0 2px 16px rgba(255,111,94,.12);
+        }
+        .field input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--t1);
+            font-size: 15px;
+            padding: 12px 0;
+        }
+        .field input::placeholder { color: var(--t3); }
+
+        .code-btn {
+            flex-shrink: 0;
+            border: none;
+            outline: none;
+            background: rgba(255,138,107,.12);
+            color: #FF7A45;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 9px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all .2s;
+        }
+        .code-btn:hover { background: rgba(255,138,107,.20); }
+        .code-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+        .enter {
+            width: 100%;
+            margin-top: 6px;
+            border: none;
+            outline: none;
+            background: var(--grad);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            padding: 15px 0;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 28px rgba(255,110,70,.40);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .enter:active { transform: scale(.98); }
+        .enter:disabled { opacity: .6; cursor: not-allowed; }
+
+        .hint {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--t3);
+            text-align: center;
+            line-height: 1.7;
+        }
+        .hint.dev {
+            color: #C26B2A;
+            background: rgba(255,174,107,.14);
+            border: 1px dashed rgba(255,174,107,.50);
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+        .hint a { color: #FF7A45; text-decoration: none; cursor: pointer; font-weight: 500; }
+        .error {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #E04040;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        /* 微信面板 */
+        .wechat-box {
+            background: rgba(255,255,255,.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,.9);
+            border-radius: 20px;
+            padding: 26px 22px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(255,120,80,.08);
+        }
+        .wechat-icon {
+            width: 56px; height: 56px;
+            margin: 0 auto 14px;
+            border-radius: 16px;
+            background: rgba(9,187,7,.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wechat-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--t1); }
+        .wechat-desc { font-size: 12.5px; color: var(--t3); line-height: 1.8; margin-bottom: 16px; }
+        .wechat-mock { display: flex; gap: 10px; }
+        .wechat-mock input {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255,255,255,.8);
+            border: 1px solid rgba(0,0,0,.08);
+            border-radius: 12px;
+            outline: none;
+            color: var(--t1);
+            font-size: 14px;
+            padding: 11px 14px;
+        }
+        .wechat-mock button {
+            flex-shrink: 0;
+            border: none;
+            outline: none;
+            background: #09BB07;
+            color: #fff;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 0 16px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* 设置密码遮罩 */
+        .mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(255,240,220,.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            z-index: 50;
+        }
+        .mask.show { display: flex; }
+        .mask-card {
+            width: 100%;
+            max-width: 360px;
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,.95);
+            border-radius: 24px;
+            padding: 26px 24px 20px;
+            box-shadow: 0 20px 60px rgba(255,120,80,.20);
+        }
+        .mask-title { font-size: 17px; font-weight: 700; text-align: center; color: var(--t1); }
+        .mask-desc {
+            margin-top: 8px;
+            font-size: 12.5px;
+            color: var(--t2);
+            text-align: center;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+        .mask-skip {
+            display: block;
+            margin: 14px auto 0;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--t3);
+            font-size: 12.5px;
+            cursor: pointer;
+        }
+        .mask-skip:active { color: var(--t2); }
+
+        .foot {
+            padding: 20px 0 26px;
+            font-size: 11px;
+            color: var(--t3);
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* ---------- 手机端适配 ---------- */
+        @media (max-width: 380px) {
+            .login { padding: 0 26px 30px; }
+            .orb { width: 84px; height: 84px; margin-top: 7vh; }
+            .name { font-size: 23px; letter-spacing: 5px; }
+            .slogan { font-size: 12px; }
+            .tabs { margin-top: 28px; }
+            .tab { font-size: 13px; padding: 9px 0; }
+            .pane { margin-top: 18px; }
+            .field { padding: 4px 6px 4px 16px; margin-bottom: 12px; }
+            .field input { font-size: 16px; padding: 11px 0; }
+            .code-btn { font-size: 12px; padding: 8px 12px; }
+            .enter { font-size: 15px; padding: 14px 0; border-radius: 16px; letter-spacing: 5px; }
+            .mask-card { padding: 22px 20px 18px; }
+        }
+        @media (max-width: 360px) {
+            .login { padding: 0 20px 26px; }
+            .orb { width: 76px; height: 76px; margin-top: 6vh; }
+            .name { font-size: 21px; letter-spacing: 4px; }
+            .tab { font-size: 12.5px; padding: 8px 0; }
+            .field input { font-size: 16px; }
+            .wechat-mock { flex-direction: column; gap: 8px; }
+            .wechat-mock button { padding: 11px; }
+        }
+        @media (max-width: 768px) {
+            input, textarea, select { font-size: 16px !important; }
+        }
+        @media (pointer: coarse) {
+            .tab, .enter, .code-btn, .field input { -webkit-touch-callout: none; touch-action: manipulation; }
+            .enter:active { transform: scale(.98); }
+            .tab:active { opacity: .7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <div class="orb"><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span></div>
+        <div class="name">路瑶</div>
+        <div class="slogan">深夜也亮着的那盏灯</div>
+
+        <div class="tabs">
+            <div class="tab active" id="tabPassword" onclick="switchTab('password')">密码登录</div>
+            <div class="tab" id="tabPhone" onclick="switchTab('phone')">验证码</div>
+            <div class="tab" id="tabWechat" onclick="switchTab('wechat')">微信</div>
+        </div>
+
+        <!-- 手机号 + 密码 -->
+        <div class="pane active" id="panePassword">
+            <div class="field">
+                <input type="tel" id="pwPhone" maxlength="11" placeholder="请输入手机号" inputmode="numeric" autocomplete="tel">
+            </div>
+            <div class="field">
+                <input type="password" id="pwPassword" maxlength="64" placeholder="请输入密码" autocomplete="current-password">
+            </div>
+            <button class="enter" id="pwLoginBtn" onclick="passwordLogin()">进 入</button>
+            <div class="error" id="pwError"></div>
+            <div class="hint">首次使用或忘记密码？请用 <a onclick="switchTab('phone')">验证码登录</a>，登录后可设置密码</div>
+        </div>
+
+        <!-- 手机号验证码 -->
+        <div class="pane" id="panePhone">
+            <div class="field">
+                <input type="tel" id="phone" maxlength="11" placeholder="请输入手机号" inputmode="numeric" autocomplete="tel">
+            </div>
+            <div class="field">
+                <input type="tel" id="code" maxlength="6" placeholder="请输入 6 位验证码" inputmode="numeric" autocomplete="one-time-code">
+                <button class="code-btn" id="sendBtn" onclick="sendCode()">获取验证码</button>
+            </div>
+            <button class="enter" id="loginBtn" onclick="smsLogin()">进 入</button>
+            <div class="error" id="phoneError"></div>
+            <div class="hint dev" id="devHint" style="display:none;"></div>
+        </div>
+
+        <!-- 微信 -->
+        <div class="pane" id="paneWechat">
+            <div class="wechat-box">
+                <div class="wechat-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="#09BB07">
+                        <path d="M8.7 4C4.9 4 2 6.6 2 9.9c0 1.8 1 3.5 2.5 4.6l-.6 2 2.2-1.1c.7.2 1.5.3 2.3.3h.4c-.2-.6-.3-1.2-.3-1.8 0-3.2 3.1-5.7 6.9-5.7h.4C15.2 5.4 12.2 4 8.7 4zM6.4 8.4c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9zm4.6 0c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9zM22 13.9c0-2.7-2.4-4.9-5.4-4.9s-5.4 2.2-5.4 4.9 2.4 4.9 5.4 4.9c.6 0 1.2-.1 1.8-.2l1.8.9-.5-1.6c1.3-.9 2.3-2.4 2.3-4zm-7.3-1.1c-.4 0-.7-.3-.7-.7s.3-.7.7-.7.7.3.7.7-.3.7-.7.7zm3.7 0c-.4 0-.7-.3-.7-.7s.3-.7.7-.7.7.3.7.7-.3.7-.7.7z"/>
+                    </svg>
+                </div>
+                <div class="wechat-title" id="wechatTitle">正在检查微信登录…</div>
+                <div class="wechat-desc" id="wechatDesc"></div>
+                <div id="wechatAction"></div>
+            </div>
+            <div class="error" id="wechatError"></div>
+        </div>
+    </div>
+
+    <!-- 首次登录设置密码 -->
+    <div class="mask" id="setPwMask">
+        <div class="mask-card">
+            <div class="mask-title">设置登录密码</div>
+            <div class="mask-desc">设置后每次打开路瑶都需要输入密码登录，<br>保护你的聊天与记忆不被他人看到</div>
+            <div class="field">
+                <input type="password" id="newPw1" maxlength="64" placeholder="设置密码（至少 6 位）" autocomplete="new-password">
+            </div>
+            <div class="field">
+                <input type="password" id="newPw2" maxlength="64" placeholder="再输入一次确认" autocomplete="new-password">
+            </div>
+            <button class="enter" id="setPwBtn" onclick="submitNewPassword()">确 定</button>
+            <div class="error" id="setPwError"></div>
+            <button class="mask-skip" onclick="skipSetPassword()">暂不设置，直接进入</button>
+        </div>
+    </div>
+
+    <div class="foot">登录即表示同意《用户协议》与《隐私政策》<br>每个账号拥有独立的数据空间，互不互通</div>
+
+<script>
+    // 登录态只存 sessionStorage：关闭 App / 标签页后即失效，每次打开都需重新登录
+    const ACCOUNT_KEY = 'luyao-account';
+    let pendingAccount = null;
+
+    function switchTab(which) {
+        document.getElementById('tabPassword').classList.toggle('active', which === 'password');
+        document.getElementById('tabPhone').classList.toggle('active', which === 'phone');
+        document.getElementById('tabWechat').classList.toggle('active', which === 'wechat');
+        document.getElementById('panePassword').classList.toggle('active', which === 'password');
+        document.getElementById('panePhone').classList.toggle('active', which === 'phone');
+        document.getElementById('paneWechat').classList.toggle('active', which === 'wechat');
+    }
+
+    function saveAccountAndGo(account) {
+        sessionStorage.setItem(ACCOUNT_KEY, JSON.stringify(account));
+        localStorage.removeItem(ACCOUNT_KEY); // 清掉旧版持久化登录态
+        location.replace('/');
+    }
+
+    /** 登录成功后：手机号账号未设密码时，引导设置密码（每次打开需密码登录的前提）。 */
+    function afterLogin(account) {
+        if (account.type === 'phone' && !account.hasPassword) {
+            pendingAccount = account;
+            document.getElementById('newPw1').value = '';
+            document.getElementById('newPw2').value = '';
+            document.getElementById('setPwError').textContent = '';
+            document.getElementById('setPwMask').classList.add('show');
+            return;
+        }
+        saveAccountAndGo(account);
+    }
+
+    async function submitNewPassword() {
+        const p1 = document.getElementById('newPw1').value;
+        const p2 = document.getElementById('newPw2').value;
+        const errEl = document.getElementById('setPwError');
+        errEl.textContent = '';
+        if (p1.length < 6) { errEl.textContent = '密码至少 6 位'; return; }
+        if (p1 !== p2) { errEl.textContent = '两次输入的密码不一致'; return; }
+        const btn = document.getElementById('setPwBtn');
+        btn.disabled = true;
+        try {
+            const resp = await fetch('/api/auth/password/set', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'password=' + encodeURIComponent(p1)
+            });
+            const data = await resp.json();
+            if (data.ok) {
+                pendingAccount.hasPassword = true;
+                document.getElementById('setPwMask').classList.remove('show');
+                saveAccountAndGo(pendingAccount);
+            } else {
+                errEl.textContent = data.message || '设置失败';
+                btn.disabled = false;
+            }
+        } catch (e) {
+            errEl.textContent = '网络异常，请稍后再试';
+            btn.disabled = false;
+        }
+    }
+
+    function skipSetPassword() {
+        document.getElementById('setPwMask').classList.remove('show');
+        saveAccountAndGo(pendingAccount);
+    }
+
+    // ---------- 手机号 + 密码 ----------
+    async function passwordLogin() {
+        const phone = document.getElementById('pwPhone').value.trim();
+        const password = document.getElementById('pwPassword').value;
+        const errEl = document.getElementById('pwError');
+        errEl.textContent = '';
+        if (!/^1\d{10}$/.test(phone)) { errEl.textContent = '请输入正确的 11 位手机号'; return; }
+        if (!password) { errEl.textContent = '请输入密码'; return; }
+        const btn = document.getElementById('pwLoginBtn');
+        btn.disabled = true;
+        try {
+            const resp = await fetch('/api/auth/password/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'phone=' + encodeURIComponent(phone) + '&password=' + encodeURIComponent(password)
+            });
+            const data = await resp.json();
+            if (data.ok && data.account) {
+                saveAccountAndGo(data.account);
+            } else {
+                errEl.textContent = data.message || '登录失败';
+                btn.disabled = false;
+            }
+        } catch (e) {
+            errEl.textContent = '网络异常，请稍后再试';
+            btn.disabled = false;
+        }
+    }
+
+    // ---------- 手机验证码 ----------
+    let countdownTimer = null;
+
+    async function sendCode() {
+        const phone = document.getElementById('phone').value.trim();
+        const errEl = document.getElementById('phoneError');
+        errEl.textContent = '';
+        if (!/^1\d{10}$/.test(phone)) {
+            errEl.textContent = '请输入正确的 11 位手机号';
+            return;
+        }
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true;
+        try {
+            const resp = await fetch('/api/auth/sms/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'phone=' + encodeURIComponent(phone)
+            });
+            const data = await resp.json();
+            if (!data.ok) {
+                errEl.textContent = data.message || '发送失败';
+                btn.disabled = false;
+                return;
+            }
+            if (data.devCode) {
+                const hint = document.getElementById('devHint');
+                hint.style.display = 'block';
+                hint.textContent = '开发模式验证码：' + data.devCode + '（接入短信渠道后此提示消失）';
+                document.getElementById('code').value = data.devCode;
+            }
+            startCountdown(btn, 60);
+        } catch (e) {
+            errEl.textContent = '网络异常，请稍后再试';
+            btn.disabled = false;
+        }
+    }
+
+    function startCountdown(btn, seconds) {
+        let left = seconds;
+        btn.textContent = left + 's 后重发';
+        countdownTimer = setInterval(() => {
+            left--;
+            if (left <= 0) {
+                clearInterval(countdownTimer);
+                btn.disabled = false;
+                btn.textContent = '获取验证码';
+            } else {
+                btn.textContent = left + 's 后重发';
+            }
+        }, 1000);
+    }
+
+    async function smsLogin() {
+        const phone = document.getElementById('phone').value.trim();
+        const code = document.getElementById('code').value.trim();
+        const errEl = document.getElementById('phoneError');
+        errEl.textContent = '';
+        if (!/^1\d{10}$/.test(phone)) { errEl.textContent = '请输入正确的 11 位手机号'; return; }
+        if (!/^\d{6}$/.test(code)) { errEl.textContent = '请输入 6 位验证码'; return; }
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        try {
+            const resp = await fetch('/api/auth/sms/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'phone=' + encodeURIComponent(phone) + '&code=' + encodeURIComponent(code)
+            });
+            const data = await resp.json();
+            if (data.ok && data.account) {
+                afterLogin(data.account);
+            } else {
+                errEl.textContent = data.message || '登录失败';
+                btn.disabled = false;
+            }
+        } catch (e) {
+            errEl.textContent = '网络异常，请稍后再试';
+            btn.disabled = false;
+        }
+    }
+
+    // ---------- 微信 ----------
+    async function initWechat() {
+        const title = document.getElementById('wechatTitle');
+        const desc = document.getElementById('wechatDesc');
+        const action = document.getElementById('wechatAction');
+        try {
+            const resp = await fetch('/api/auth/wechat/status');
+            const data = await resp.json();
+            if (data.configured) {
+                title.textContent = '微信扫码登录';
+                desc.textContent = '点击下方按钮跳转微信扫码，授权后自动登录';
+                action.innerHTML = '<button class="enter" style="letter-spacing:2px;margin-top:0;" onclick="location.href=\'/api/auth/wechat/qrcode\'">微信扫码登录</button>';
+            } else if (data.devMode) {
+                title.textContent = '微信登录（测试模式）';
+                desc.innerHTML = '真实微信扫码需要微信开放平台资质（企业认证 + 备案域名），<br>当前为开发模式，输入昵称即可体验微信账号登录：';
+                action.innerHTML = '<div class="wechat-mock">'
+                    + '<input id="mockName" maxlength="12" placeholder="输入微信昵称，如：小路">'
+                    + '<button onclick="mockWechatLogin()">微信登录</button></div>';
+            } else {
+                title.textContent = '微信登录暂未开放';
+                desc.textContent = '请使用手机号登录';
+            }
+        } catch (e) {
+            title.textContent = '微信登录暂不可用';
+            desc.textContent = '请使用手机号登录';
+        }
+    }
+
+    async function mockWechatLogin() {
+        const name = document.getElementById('mockName').value.trim() || '微信用户(测试)';
+        const errEl = document.getElementById('wechatError');
+        errEl.textContent = '';
+        try {
+            const resp = await fetch('/api/auth/wechat/mock-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'nickname=' + encodeURIComponent(name)
+            });
+            const data = await resp.json();
+            if (data.ok && data.account) {
+                afterLogin(data.account);
+            } else {
+                errEl.textContent = data.message || '登录失败';
+            }
+        } catch (e) {
+            errEl.textContent = '网络异常，请稍后再试';
+        }
+    }
+
+    // 每次打开都停留在登录页（不做已登录自动跳转）；
+    // 仅微信扫码回调（/login?wechat=ok）时从服务端会话续接登录态。
+    (function init() {
+        const params = new URLSearchParams(location.search);
+        if (params.get('wechat') === 'ok') {
+            fetch('/api/auth/me').then(r => r.json()).then(data => {
+                if (data.loggedIn && data.account) {
+                    afterLogin(data.account);
+                    return;
+                }
+                initWechat();
+            }).catch(() => initWechat());
+            return;
+        }
+        initWechat();
+    })();
+
+    // 回车提交
+    document.getElementById('pwPassword').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') passwordLogin();
+    });
+    document.getElementById('code').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') smsLogin();
+    });
+    document.getElementById('newPw2').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitNewPassword();
+    });
+</script>
+</body>
+</html>

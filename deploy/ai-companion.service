@@ -1,0 +1,17 @@
+[Unit]
+Description=LuYao AI Companion Service
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/luyao
+ExecStart=/usr/bin/java -jar -Xms128m -Xmx384m /opt/luyao/ai-companion-1.0.0.jar
+EnvironmentFile=/opt/luyao/luyao.env
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/var/log/luyao/app.log
+StandardError=append:/var/log/luyao/error.log
+
+[Install]
+WantedBy=multi-user.target

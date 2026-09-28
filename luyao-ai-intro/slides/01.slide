@@ -1,0 +1,15 @@
+<Slide style={{ width:'1280px', height:'720px', background:'#0B0D12', position:'relative', fontFamily:"'PingFang SC','Inter',sans-serif", overflow:'hidden' }}>
+  <Box style={{ position:'absolute', top:-140, right:-110, width:540, height:540, borderRadius:270, background:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', opacity:0.18 }} />
+  <Box style={{ position:'absolute', bottom:-170, left:-90, width:480, height:480, borderRadius:240, background:'linear-gradient(135deg,#FFAE6B 0%,#FF6F5E 100%)', opacity:0.10 }} />
+  <Box style={{ position:'relative', zIndex:2, height:'100%', padding:'0 96px', justifyContent:'center' }}>
+    <Text style={{ fontSize:22, color:'rgba(237,239,245,0.6)', letterSpacing:6 }}>AI COMPANION</Text>
+    <Text style={{ fontSize:84, fontWeight:'bold', color:'#EDEFF5', marginTop:14 }}>路瑶 AI</Text>
+    <Text style={{ fontSize:36, fontWeight:'bold', marginTop:12 }}>
+      <span style={{ backgroundImage:'linear-gradient(135deg,#FF6F5E 0%,#FFAE6B 100%)', backgroundClip:'text', color:'transparent' }}>你的 AI 情感伴侣</span>
+    </Text>
+    <Text style={{ fontSize:20, color:'rgba(237,239,245,0.72)', marginTop:26, lineHeight:1.7 }}>有记忆 · 有温度 · 多端互通的智能陪聊应用<br />项目功能与亮点 · 整体介绍</Text>
+  </Box>
+  <Box style={{ position:'absolute', bottom:38, left:96, zIndex:2 }}>
+    <Text style={{ fontSize:14, color:'rgba(237,239,245,0.5)' }}>路瑶AI · 项目介绍　|　2026</Text>
+  </Box>
+</Slide>
