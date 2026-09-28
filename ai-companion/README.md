@@ -4,14 +4,14 @@
 
 > 不是问答机器人，是一个有记忆、有情绪、会主动关心你、甚至会闹小脾气的角色。能记住你说过的事，在后续对话中自然提起；有好感度系统，从陌生人到朋友再到恋人，不同阶段说话方式不同；回复像微信聊天一样：短句、口语化、多条消息、有打字延迟。
 
-技术栈：Java 17 + Spring Boot 3.2 + WebSocket + H2 + OkHttp + Jackson + DeepSeek API。
+技术栈：Java 21 + Spring Boot 3.2 + WebSocket + MySQL + OkHttp + Jackson + DeepSeek API。
 
 ---
 
 ## 一、VS Code 开发环境准备
 
 ### 1. JDK
-- 安装 **OpenJDK 17**（推荐 Eclipse Temurin 发行版：https://adoptium.net/temurin/releases/?version=17 ）。
+- 安装 **OpenJDK 21**（推荐 Eclipse Temurin 发行版：https://adoptium.net/temurin/releases/?version=21 ）。
 - 安装后验证：`java -version`，应输出 `17.x.x`。
 - VS Code 中 `Cmd/Ctrl + Shift + P` → `Java: Configure Java Runtime` 可检查并配置 JDK。
 - 如果你本机装的是 **JDK 26**，项目也能正常编译（`pom.xml` 已把 Lombok 升到 **1.18.46**，这是首个正式支持 JDK 26 的 Lombok 版本；旧版会在 JDK 26 上静默失败导致 `log` 找不到符号）。
@@ -68,18 +68,27 @@ VS Code 中：
 
 ---
 
-## 三、运行
+## 三、配置与运行
+
+应用依赖环境变量注入密钥（详见根目录 README 的「环境变量清单」）。先复制配置模板并填好环境变量：
+
+```bash
+cp src/main/resources/application.yml.template src/main/resources/application.yml
+export MYSQL_PASSWORD=xxx COMPANION_PASSWORD=xxx ADMIN_PASSWORD=xxx DEEPSEEK_API_KEY=sk-xxx VOLCANO_TTS_APIKEY=xxx
+```
+
+启动：
 
 ```bash
 cd ai-companion
-mvn spring-boot:run          # 或 ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 启动后：
-- 聊天界面：http://localhost:8080/
-- H2 控制台：http://localhost:8080/h2-console
-  - JDBC URL：`jdbc:h2:file:./data/companion`
-  - 用户名：`sa`，密码留空
+- 聊天界面：http://localhost:8083/
+- 管理后台：http://localhost:8084/admin
+
+> 数据库默认 MySQL（按 `schema.sql` 自动建表）。H2 仅用于测试：`./mvnw test` 会自动使用内存 H2，无需真实数据库或密钥。
 
 VS Code 中也可直接在 `CompanionApplication.java` 上方点击 **Run | Debug** 运行。
 
