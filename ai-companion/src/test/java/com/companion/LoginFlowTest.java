@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,10 +58,13 @@ class LoginFlowTest {
     }
 
     @Test
-    void validPasswordLogsIn() throws Exception {
-        mockMvc.perform(post("/login").param("password", "test-pass"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+    void passwordLoginRejectsUnknownAccount() throws Exception {
+        // 不存在的账号 + 任意密码都应被拒绝（不创建账号，H2 安全）；验证密码登录端点可用
+        mockMvc.perform(post("/api/auth/password/login")
+                        .param("phone", "13900000000")
+                        .param("password", "whatever"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ok").value(false));
     }
 
     @Test
