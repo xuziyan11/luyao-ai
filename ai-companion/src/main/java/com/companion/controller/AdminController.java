@@ -27,7 +27,9 @@ public class AdminController {
     private final VoiceCallWebSocketHandler voiceCallWebSocketHandler;
     private final AccountService accountService;
 
-    @Value("${companion.admin.password:admin888}")
+    // 管理后台登录密码：生产环境必须通过环境变量 ADMIN_PASSWORD 注入（见 application.yml.template）。
+    // 此处不提供默认密码，缺失该配置时应用启动即报错，避免弱口令上线。
+    @Value("${companion.admin.password}")
     private String adminPassword;
 
     /** 允许后台在线修改的配置键白名单（防止任意键注入）。 */

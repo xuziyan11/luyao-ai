@@ -31,7 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.datasource.password=",
         "spring.sql.init.mode=always",
         "spring.sql.init.schema-locations=classpath:/schema.sql",
-        "companion.deepseek.api-key=test-key"
+        "companion.deepseek.api-key=test-key",
+        "companion.admin.password=test-pass",
+        "companion.auth.password=test-pass"
 })
 class LoginFlowTest {
 
@@ -56,7 +58,7 @@ class LoginFlowTest {
 
     @Test
     void validPasswordLogsIn() throws Exception {
-        mockMvc.perform(post("/login").param("password", "260824"))
+        mockMvc.perform(post("/login").param("password", "test-pass"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

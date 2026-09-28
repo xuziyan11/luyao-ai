@@ -35,7 +35,9 @@ public class IlinkController {
     private final IlinkPollingTask pollingTask;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Value("${companion.auth.password:260824}")
+    // iLink 绑定接口的保护口令：生产环境通过环境变量 COMPANION_PASSWORD 注入。
+    // 不提供默认口令，缺失时启动报错，避免弱口令暴露绑定入口。
+    @Value("${companion.auth.password}")
     private String password;
 
     @Autowired
