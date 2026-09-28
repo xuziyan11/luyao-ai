@@ -97,14 +97,6 @@ companion:
     api-key: "${VOLCANO_TTS_APIKEY}"
     cluster: "${VOLCANO_TTS_CLUSTER:volcano_tts}"
     voice: "${VOLCANO_TTS_VOICE:zh_female_xiaohe_uranus_bigtts}"
-    # 流式语音识别 (ASR)，与 TTS 共享 api-key，需在火山控制台开通 ASR 服务
-    asr:
-      # endpoint=bigmodel 是大模型流式 ASR（2.0版），必须搭配 seedasr 资源ID
-      # 豆包流式语音识别模型2.0 小时版：volc.seedasr.sauc.duration ✓
-      # 豆包流式语音识别模型1.0 小时版：volc.bigasr.sauc.duration ✗（与 bigmodel endpoint 不兼容）
-      resource-id: "${VOLCANO_ASR_RESOURCE_ID:volc.seedasr.sauc.duration}"
-      # 优化版 bigmodel，首字延迟更低
-      endpoint: "${VOLCANO_ASR_ENDPOINT:wss://openspeech.bytedance.com/api/v3/sauc/bigmodel}"
 
 # 豆包 Realtime 端到端实时语音大模型（Duplex 3.0 / Seeduplex）
 # 全双工 S2S：一个 WebSocket 搞定 ASR + LLM + TTS，延迟最低

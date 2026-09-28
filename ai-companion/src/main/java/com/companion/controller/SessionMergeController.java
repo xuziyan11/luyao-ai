@@ -119,27 +119,4 @@ public class SessionMergeController {
         return copied;
     }
 
-    /** 查询某个 sessionId 的数据量，用于调试。 */
-    @GetMapping("/{sessionId}/stats")
-    public Map<String, Object> stats(@PathVariable String sessionId) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("sessionId", sessionId);
-        try {
-            Integer historyCount = jdbc.query(
-                    "SELECT COUNT(*) FROM " + AccountTables.chatHistory(sessionId) + " WHERE session_id = ?",
-                    rs -> rs.next() ? rs.getInt(1) : 0, sessionId);
-            Integer memoryCount = jdbc.query(
-                    "SELECT COUNT(*) FROM " + AccountTables.longTermMemory(sessionId) + " WHERE session_id = ?",
-                    rs -> rs.next() ? rs.getInt(1) : 0, sessionId);
-            Integer affinity = jdbc.query(
-                    "SELECT affinity_value FROM " + AccountTables.affinity(sessionId) + " WHERE session_id = ?",
-                    rs -> rs.next() ? rs.getInt(1) : null, sessionId);
-            result.put("historyCount", historyCount == null ? 0 : historyCount);
-            result.put("memoryCount", memoryCount == null ? 0 : memoryCount);
-            result.put("affinity", affinity == null ? "无" : affinity);
-        } catch (Exception e) {
-            result.put("error", e.getMessage());
-        }
-        return result;
-    }
 }

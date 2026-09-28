@@ -122,15 +122,15 @@ public class PromptTemplates {
     /**
      * 兼容现有调用，默认按网页端语气生成（时间取服务端）。
      */
-    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts, List<String> warmNews) {
-        return buildSystemPrompt(affinity, longTermMemoryFacts, warmNews, "web", null, null);
+    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts) {
+        return buildSystemPrompt(affinity, longTermMemoryFacts, "web", null, null);
     }
 
     /**
      * 兼容现有调用，默认按网页端语气生成（时间取服务端）。
      */
-    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts, List<String> warmNews, String channel) {
-        return buildSystemPrompt(affinity, longTermMemoryFacts, warmNews, channel, null, null);
+    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts, String channel) {
+        return buildSystemPrompt(affinity, longTermMemoryFacts, channel, null, null);
     }
 
     /**
@@ -141,7 +141,7 @@ public class PromptTemplates {
      * @param clientEpochMillis      用户端本地时间（epoch 毫秒）；为 null 时回退服务端时间
      * @param clientTzOffsetMinutes  用户端相对 UTC 的东偏分钟数（如 UTC+8 为 +480）；为 null 时回退服务端时区
      */
-    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts, List<String> warmNews, String channel,
+    public String buildSystemPrompt(int affinity, List<String> longTermMemoryFacts, String channel,
                                     Long clientEpochMillis, Integer clientTzOffsetMinutes) {
         // 单一朋友阶段：0-100 全程使用朋友 persona
         String persona = loverPersona();
@@ -209,13 +209,6 @@ public class PromptTemplates {
                     3. 不要把旧记忆当作对方当下状态来追问。
                     """);
 
-        // 动态注入实时暖新闻
-        if (warmNews != null && !warmNews.isEmpty()) {
-            sb.append("\n【近期真实新闻热点（可自然融入对话）】\n");
-            for (int i = 0; i < warmNews.size(); i++) {
-                sb.append(i + 1).append(". ").append(warmNews.get(i)).append('\n');
-            }
-        }
 
         // 管理后台定制人设/规则（app_config: prompt.custom_persona，修改后即时生效）
         String customPersona = configService.get("prompt.custom_persona", "");

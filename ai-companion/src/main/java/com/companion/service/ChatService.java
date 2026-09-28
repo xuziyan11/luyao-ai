@@ -27,7 +27,6 @@ public class ChatService {
     private final MessageSplitter messageSplitter;
     private final PromptTemplates promptTemplates;
     private final AiEventExtractService eventExtractService;
-    private final NewsService newsService;
     private final SceneModeService sceneModeService;
 
     public ChatService(LlmService llmService,
@@ -36,7 +35,6 @@ public class ChatService {
                        MessageSplitter messageSplitter,
                        PromptTemplates promptTemplates,
                        AiEventExtractService eventExtractService,
-                       NewsService newsService,
                        SceneModeService sceneModeService) {
         this.llmService = llmService;
         this.memoryService = memoryService;
@@ -44,7 +42,6 @@ public class ChatService {
         this.messageSplitter = messageSplitter;
         this.promptTemplates = promptTemplates;
         this.eventExtractService = eventExtractService;
-        this.newsService = newsService;
         this.sceneModeService = sceneModeService;
     }
 
@@ -79,8 +76,7 @@ public class ChatService {
             // 2. 读取好感度与长期记忆，生成 system prompt（叠加当前场景模式人设）
             int affinity = affinityService.getAffinity(sessionId);
             List<String> facts = memoryService.getLongTermMemoryFacts(sessionId);
-            List<String> warmNews = newsService.getWarmNews();
-            String systemPrompt = promptTemplates.buildSystemPrompt(affinity, facts, warmNews, channel, clientEpochMillis, clientTzOffsetMinutes);
+            String systemPrompt = promptTemplates.buildSystemPrompt(affinity, facts, channel, clientEpochMillis, clientTzOffsetMinutes);
             Long modeAccountId = AccountTables.extractAccountId(sessionId);
             if (modeAccountId != null) {
                 systemPrompt += sceneModeService.promptSegment(sceneModeService.currentMode(modeAccountId));

@@ -21,7 +21,6 @@ function bypass(pathname) {
   // 会触发登录态跳转的页面路由
   if (pathname === '/' || pathname === '/login') return true;
   if (pathname === '/voice-call.html') return true;
-  if (pathname === '/wechat-upload.html') return true;
   return false;
 }
 

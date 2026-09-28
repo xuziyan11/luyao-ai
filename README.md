@@ -96,7 +96,6 @@ cd ai-companion
 | `COMPANION_DEV_MODE` | 开发模式（验证码随接口返回、允许模拟微信登录） | `true` |
 | `DEEPSEEK_API_KEY` | DeepSeek API Key | 无（必填） |
 | `VOLCANO_TTS_APPID` / `VOLCANO_TTS_TOKEN` / `VOLCANO_TTS_APIKEY` / `VOLCANO_TTS_CLUSTER` / `VOLCANO_TTS_VOICE` | 火山引擎 TTS 配置 | 见模板 |
-| `VOLCANO_ASR_RESOURCE_ID` / `VOLCANO_ASR_ENDPOINT` | 火山 ASR 配置 | 见模板 |
 | `WECHAT_APPID` / `WECHAT_SECRET` / `WECHAT_REDIRECT_URI` | 微信扫码登录（需企业主体 + 备案域名） | 空 |
 | `ILINK_ENABLED` | 启用微信 iLink 轮询 | `true` |
 

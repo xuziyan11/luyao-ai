@@ -41,7 +41,6 @@ public class ReminderService {
     private final PromptTemplates promptTemplates;
     private final AffinityService affinityService;
     private final MemoryService memoryService;
-    private final NewsService newsService;
     private final SceneModeService sceneModeService;
     private final MessageSplitter messageSplitter;
 
@@ -54,7 +53,6 @@ public class ReminderService {
                            PromptTemplates promptTemplates,
                            AffinityService affinityService,
                            MemoryService memoryService,
-                           NewsService newsService,
                            SceneModeService sceneModeService,
                            MessageSplitter messageSplitter) {
         this.jdbc = jdbc;
@@ -63,7 +61,6 @@ public class ReminderService {
         this.promptTemplates = promptTemplates;
         this.affinityService = affinityService;
         this.memoryService = memoryService;
-        this.newsService = newsService;
         this.sceneModeService = sceneModeService;
         this.messageSplitter = messageSplitter;
     }
@@ -216,7 +213,7 @@ public class ReminderService {
             int affinity = affinityService.getAffinity(sessionId);
             List<String> facts = memoryService.getLongTermMemoryFacts(sessionId);
             String systemPrompt = promptTemplates.buildSystemPrompt(
-                    affinity, facts, newsService.getWarmNews(), "web")
+                    affinity, facts, "web")
                     + sceneModeService.promptSegment(sceneModeService.currentMode(accountId))
                     + "\n【主动陪伴任务】" + sceneTask + "\n"
                     + "这是由你主动发起的消息，不是回复。用 ||| 拆成 2-3 条短句，像随手发的微信，不要提到「任务」「系统」这类词。";
