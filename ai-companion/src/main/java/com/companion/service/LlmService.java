@@ -31,7 +31,11 @@ import java.util.function.Consumer;
 public class LlmService {
 
     /** 单条对话消息（role: system/user/assistant） */
-    public record ChatMessage(String role, String content) {
+    public record ChatMessage(String role, String content, Long createdAt) {
+        /** 兼容无需时间戳的调用（LLM 上下文构造等） */
+        public ChatMessage(String role, String content) {
+            this(role, content, null);
+        }
     }
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");

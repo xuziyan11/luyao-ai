@@ -321,6 +321,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 ObjectNode item = mapper.createObjectNode();
                 item.put("role", msg.role());
                 item.put("content", part);
+                if (msg.createdAt() != null) item.put("createdAt", msg.createdAt());
                 messages.add(item);
             }
         }

@@ -350,9 +350,21 @@
             z-index: 5;
         }
         .messages::-webkit-scrollbar { display: none; }
-        .row { display: flex; gap: 9px; max-width: 100%; align-items: flex-end; }
+        .row { display: flex; gap: 9px; max-width: 100%; align-items: flex-end; flex-wrap: wrap; }
         .row.left { justify-content: flex-start; }
         .row.right { justify-content: flex-end; }
+        .msg-time {
+            flex-basis: 100%;
+            order: 2;
+            font-size: 11px;
+            line-height: 1.25;
+            color: var(--t3);
+            opacity: .55;
+            margin-top: 2px;
+            padding: 0 2px;
+        }
+        .row.left .msg-time { text-align: left; }
+        .row.right .msg-time { text-align: right; }
         .bubble {
             max-width: 74%;
             padding: 11px 14px;
@@ -1714,7 +1726,7 @@
         return html;
     }
 
-    function addBubble(text, side, withVoice) {
+    function addBubble(text, side, withVoice, ts) {
         const row = document.createElement('div');
         row.className = 'row ' + (side === 'right' ? 'right' : 'left');
         if (side !== 'right') {
@@ -1754,6 +1766,12 @@
             applyAvatar(av, 'user', '我');
             row.appendChild(av);
         }
+        if (ts) {
+            const t = document.createElement('div');
+            t.className = 'msg-time';
+            t.textContent = fmtChatTime(ts);
+            row.appendChild(t);
+        }
         messagesEl.insertBefore(row, typingRow);
         scrollBottom();
 
@@ -1765,7 +1783,7 @@
 
 
     // --- 流式回复辅助函数 ---
-    function createStreamBubble() {
+    function createStreamBubble(ts) {
         const row = document.createElement('div');
         row.className = 'row left';
         const av = document.createElement('div');
@@ -1775,6 +1793,12 @@
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
         row.appendChild(bubble);
+        if (ts) {
+            const t = document.createElement('div');
+            t.className = 'msg-time';
+            t.textContent = fmtChatTime(ts);
+            row.appendChild(t);
+        }
         messagesEl.insertBefore(row, typingRow);
         scrollBottom();
         return bubble;
@@ -2311,7 +2335,7 @@
                     if (Array.isArray(data.messages)) {
                         data.messages.forEach((item) => {
                             const side = item.role === 'user' ? 'right' : 'left';
-                            addBubble(item.content, side, false);
+                            addBubble(item.content, side, false, item.createdAt);
                         });
                     }
                     break;
@@ -2332,7 +2356,7 @@
                     while ((sepIdx = streamingText.indexOf('|||')) !== -1) {
                         const segment = stripAffinity(streamingText.substring(0, sepIdx)).trim();
                         if (segment) {
-                            if (!streamingBubble) streamingBubble = createStreamBubble();
+                            if (!streamingBubble) streamingBubble = createStreamBubble(Date.now());
                             finalizeStreamBubble(streamingBubble, segment);
                             streamingBubble = null;
                         }
@@ -2340,14 +2364,14 @@
                     }
                     const remaining = stripAffinity(streamingText);
                     if (remaining.trim()) {
-                        if (!streamingBubble) streamingBubble = createStreamBubble();
+                        if (!streamingBubble) streamingBubble = createStreamBubble(Date.now());
                         updateStreamBubble(streamingBubble, remaining);
                     }
                     break;
                 }
                 case 'message':
                     showTyping(false);
-                    addBubble(data.content, 'left', true);
+                    addBubble(data.content, 'left', true, Date.now());
                     break;
                 case 'done':
                     showTyping(false);
@@ -2372,7 +2396,7 @@
                         streamingBubble = null;
                         streamingText = '';
                     }
-                    addBubble(data.content, 'left');
+                    addBubble(data.content, 'left', undefined, Date.now());
                     sending = false;
                     sendBtn.disabled = false;
                     break;
@@ -2410,7 +2434,7 @@
     function send() {
         const text = inputEl.value.trim();
         if (!text || !ws || ws.readyState !== WebSocket.OPEN || sending) return;
-        addBubble(text, 'right');
+        addBubble(text, 'right', undefined, Date.now());
         ws.send(buildChatPayload(text));
         inputEl.value = '';
         inputEl.style.height = 'auto';
@@ -2439,7 +2463,7 @@
                 quickPanel.classList.remove('show');
                 quickOverlay.classList.remove('show');
                 if (msg && !sending && ws && ws.readyState === WebSocket.OPEN) {
-                    addBubble(msg, 'right');
+                    addBubble(msg, 'right', undefined, Date.now());
                     ws.send(buildChatPayload(msg));
                     sending = true;
                     sendBtn.disabled = true;
@@ -2561,7 +2585,22 @@
     function fmtTs(ts) {
         if (!ts) return '';
         const d = bjDate(ts);
-        return (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日';
+    }
+
+    function fmtChatTime(ts) {
+        if (!ts) return '';
+        const d = bjDate(ts);
+        const now = bjDate(Date.now());
+        const pad = n => String(n).padStart(2, '0');
+        const hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        if (sameDay) return hm;
+        const yest = new Date(now.getTime());
+        yest.setDate(now.getDate() - 1);
+        const isYest = d.getFullYear() === yest.getFullYear() && d.getMonth() === yest.getMonth() && d.getDate() === yest.getDate();
+        if (isYest) return '昨天 ' + hm;
+        if (d.getFullYear() === now.getFullYear()) return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + hm;
+        return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + hm;
     }
 
     let memoryCache = [];

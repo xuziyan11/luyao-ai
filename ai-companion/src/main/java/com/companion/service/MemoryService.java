@@ -44,8 +44,15 @@ public class MemoryService {
     /** 读取指定会话的全部历史消息，按时间正序返回。 */
     public List<LlmService.ChatMessage> getAllMessages(String sessionId) {
         return jdbc.query(
-                "SELECT role, content FROM " + AccountTables.chatHistory(sessionId) + " WHERE session_id = ? ORDER BY id ASC",
-                (rs, rowNum) -> new LlmService.ChatMessage(rs.getString("role"), rs.getString("content")),
+                "SELECT role, content, created_at FROM " + AccountTables.chatHistory(sessionId) + " WHERE session_id = ? ORDER BY id ASC",
+                (rs, rowNum) -> {
+                    Long ts = null;
+                    try {
+                        java.sql.Timestamp t = rs.getTimestamp("created_at");
+                        if (t != null) ts = t.getTime();
+                    } catch (Exception ignored) {}
+                    return new LlmService.ChatMessage(rs.getString("role"), rs.getString("content"), ts);
+                },
                 sessionId);
     }
 
